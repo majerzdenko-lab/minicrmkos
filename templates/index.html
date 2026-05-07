@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Kontakty{% endblock %}
+
+{% block content %}
+
+{# ── Inline add form ──────────────────────────────────────────────────── #}
+<div class="inline-add">
+  <div class="inline-add-title">+ Pridať kontakt</div>
+  <form method="POST" action="{{ url_for('contact_add') }}">
+    <div class="inline-add-fields">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Meno *</label>
+        <input type="text" name="name" class="form-control" placeholder="Meno a priezvisko" required>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Telefón</label>
+        <input type="tel" name="phone" class="form-control" placeholder="+421 9xx xxx xxx">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" placeholder="email@example.com">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Zdroj</label>
+        <select name="source" class="form-control">
+          {% for src in sources %}
+            <option value="{{ src }}">{{ src }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Pridať</button>
+    </div>
+  </form>
+</div>
+
+{# ── Filter tabs ──────────────────────────────────────────────────────── #}
+<div class="filter-wrap">
+  <div class="filter-tabs">
+    <a href="{{ url_for('index') }}"
+       class="filter-tab {% if not status_filter %}active{% endif %}">
+      Všetky <span class="count">({{ total }})</span>
+    </a>
+    {% for s in status_order %}
+      <a href="{{ url_for('index', status=s) }}"
+         class="filter-tab {% if status_filter == s %}active{% endif %}">
+        {{ s }} <span class="count">({{ counts[s] }})</span>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+{# ── Desktop table ────────────────────────────────────────────────────── #}
+<div class="contacts-table-wrap">
+  {% if contacts %}
+    <table class="contacts-table">
+      <thead>
+        <tr>
+          <th>Meno</th>
+          <th>Kontakt</th>
+          <th>Zdroj / Kurz</th>
+          <th>Stav</th>
+          <th style="text-align:center">Dni</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in contacts %}
+          {% set is_stale = c.id in stale_ids %}
+          {% set slug = c.status | slug %}
+          {% set idx = status_order.index(c.status) if c.status in status_order else -1 %}
+          <tr class="{{ 'stale-row' if is_stale else '' }}">
+            <td>
+              {% if is_stale %}<span class="stale-dot" title="Viac ako 4 dni v rovnakom stave">&#9679;</span> {% endif %}
+              <a href="{{ url_for('contact_detail', id=c.id) }}" class="contact-link">{{ c.name }}</a>
+            </td>
+            <td>
+              {% if c.phone %}<div>{{ c.phone }}</div>{% endif %}
+              {% if c.email %}<div class="contact-sub">{{ c.email }}</div>{% endif %}
+              {% if not c.phone and not c.email %}<span style="color:var(--text-muted)">—</span>{% endif %}
+            </td>
+            <td>
+              <div>{{ c.source or '—' }}</div>
+              {% if c.course_ref %}
+                <div class="contact-sub">{{ c.course_ref }}</div>
+              {% elif course and course.name %}
+                <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}">
+                  <button type="submit" class="btn btn-secondary btn-sm" style="margin-top:0.2rem">+ Priradiť kurz</button>
+                </form>
+              {% endif %}
+            </td>
+            <td>
+              <div class="status-controls">
+                {# Back button #}
+                {% if idx > 0 %}
+                  <form method="POST" action="{{ url_for('contact_regress', id=c.id) }}" style="display:inline">
+                    <button type="submit" class="btn-step btn-step-back" title="Vrátiť na predošlý stav">‹</button>
+                  </form>
+                {% else %}
+                  <span class="btn-step-placeholder"></span>
+                {% endif %}
+
+                {# Status badge #}
+                <span class="badge badge-{{ slug }}">{{ c.status }}</span>
+
+                {# Advance button #}
+                {% if idx >= 0 and idx < status_order|length - 1 %}
+                  <form method="POST" action="{{ url_for('contact_advance', id=c.id) }}" style="display:inline">
+                    <button type="submit" class="btn-step btn-step-fwd" title="Posunúť na ďalší stav">›</button>
+                  </form>
+                {% else %}
+                  <span class="btn-step-placeholder"></span>
+                {% endif %}
+              </div>
+            </td>
+            <td style="text-align:center">
+              <span class="days-badge {% if is_stale %}days-stale{% endif %}">{{ days_map[c.id] }}d</span>
+            </td>
+            <td>
+              <a href="{{ url_for('contact_detail', id=c.id) }}" class="btn btn-secondary btn-sm">Detail</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">
+      <p>Žiadne kontakty{% if status_filter %} so stavom „{{ status_filter }}"{% endif %}.</p>
+    </div>
+  {% endif %}
+</div>
+
+{# ── Mobile cards ─────────────────────────────────────────────────────── #}
+<div class="contacts-cards-wrap">
+  {% if contacts %}
+    {% for c in contacts %}
+      {% set is_stale = c.id in stale_ids %}
+      {% set slug = c.status | slug %}
+      {% set idx = status_order.index(c.status) if c.status in status_order else -1 %}
+      <div class="contact-card {{ 'stale-row' if is_stale else '' }}">
+        <div class="contact-card-top">
+          <div class="contact-card-name">
+            {% if is_stale %}<span class="stale-dot">&#9679;</span> {% endif %}
+            <a href="{{ url_for('contact_detail', id=c.id) }}">{{ c.name }}</a>
+            <span class="days-badge {% if is_stale %}days-stale{% endif %}"> · {{ days_map[c.id] }}d</span>
+          </div>
+          <span class="badge badge-{{ slug }}">{{ c.status }}</span>
+        </div>
+        <div class="contact-card-sub">
+          {% if c.phone %}{{ c.phone }}{% endif %}
+          {% if c.phone and c.email %} · {% endif %}
+          {% if c.email %}{{ c.email }}{% endif %}
+          {% if c.source %} · {{ c.source }}{% endif %}
+          {% if c.course_ref %}<br><span style="color:var(--accent)">📅 {{ c.course_ref }}</span>{% endif %}
+        </div>
+        <div class="contact-card-footer">
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            {% if idx > 0 %}
+              <form method="POST" action="{{ url_for('contact_regress', id=c.id) }}">
+                <button type="submit" class="btn btn-secondary btn-sm">← Späť</button>
+              </form>
+            {% endif %}
+            {% if idx >= 0 and idx < status_order|length - 1 %}
+              <form method="POST" action="{{ url_for('contact_advance', id=c.id) }}">
+                <button type="submit" class="btn btn-primary btn-sm">Ďalej →</button>
+              </form>
+            {% endif %}
+            {% if course and course.name and not c.course_ref %}
+              <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}">
+                <button type="submit" class="btn btn-secondary btn-sm">+ Kurz</button>
+              </form>
+            {% endif %}
+          </div>
+          <a href="{{ url_for('contact_detail', id=c.id) }}" class="btn btn-secondary btn-sm">Detail</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <p>Žiadne kontakty{% if status_filter %} so stavom „{{ status_filter }}"{% endif %}.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

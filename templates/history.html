@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}História{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">História kurzov</h1>
+</div>
+
+{# ── Archive action ───────────────────────────────────────────────────── #}
+<div class="archive-action-box">
+  {% if course and course.name %}
+    <p>
+      Uzavrieť aktívny kurz <strong>{{ course.name }}</strong>
+      {% if course.date %}({{ course.date | fmt_date }}){% endif %}
+      a presunúť ho do histórie?
+    </p>
+    <form method="POST" action="{{ url_for('history_archive') }}"
+          onsubmit="return confirm('Naozaj uzavrieť kurz {{ course.name }}? Akciu nie je možné vrátiť.')">
+      <button type="submit" class="btn btn-danger">
+        Uzavrieť kurz
+      </button>
+    </form>
+  {% else %}
+    <p>Momentálne nie je nastavený žiadny aktívny kurz.</p>
+    <a href="{{ url_for('settings') }}" class="btn btn-secondary btn-sm">Nastaviť kurz</a>
+  {% endif %}
+</div>
+
+{# ── Archived list ────────────────────────────────────────────────────── #}
+{% if archived %}
+  {% for a in archived %}
+    <div class="archive-card">
+      <div class="archive-card-header">
+        <div class="archive-card-name">{{ a.name }}</div>
+        <div class="archive-card-when">
+          Archivovaný {{ a.archived_at.strftime('%-d. %-m. %Y') if a.archived_at else '—' }}
+        </div>
+      </div>
+      <div class="archive-card-meta">
+        {% if a.date %}
+          <span class="archive-stat">📅 <strong>{{ a.date | fmt_date }}</strong></span>
+        {% endif %}
+        {% if a.time %}
+          <span class="archive-stat">🕐 <strong>{{ a.time | fmt_time }}</strong></span>
+        {% endif %}
+        {% if a.location %}
+          <span class="archive-stat">📍 <strong>{{ a.location }}</strong></span>
+        {% endif %}
+        <span class="archive-stat">
+          Potvrdených: <strong>{{ a.participants_count }}</strong>/{{ a.capacity or '?' }}
+        </span>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <p>Žiadne archivované kurzy.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

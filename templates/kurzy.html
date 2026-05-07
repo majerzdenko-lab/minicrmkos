@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termíny kurzov — Veselý Kosec</title>
+  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #fff;
+      color: #1e1b14;
+      padding: 1.25rem 1rem 1.5rem;
+      font-size: 15px;
+    }
+
+    .widget-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .logo-img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .widget-title-wrap h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #2a4e20;
+      line-height: 1.2;
+    }
+    .widget-title-wrap p {
+      font-size: 0.78rem;
+      color: #7a6e5e;
+      margin-top: 0.15rem;
+    }
+
+    .session-card {
+      background: #fff;
+      border: 1px solid #e0ddd5;
+      border-radius: 8px;
+      padding: 0.95rem 1.1rem;
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      transition: box-shadow 0.15s;
+    }
+    .session-card:hover { box-shadow: 0 4px 14px rgba(42,78,32,0.12); }
+    .session-info { flex: 1; min-width: 0; }
+    .session-name {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.97rem;
+      color: #2a4e20;
+      margin-bottom: 0.3rem;
+    }
+    .session-meta {
+      font-size: 0.8rem;
+      color: #7a6e5e;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+    .meta-item { display: flex; align-items: center; gap: 0.2rem; }
+
+    .spots {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 12px;
+      margin-top: 0.4rem;
+    }
+    .spots-ok   { background: #e0eed8; color: #1e4a14; }
+    .spots-low  { background: #fef3d0; color: #7a5200; }
+    .spots-full { background: #f5ddd8; color: #7a1e1e; }
+
+    .btn-reg {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0.45rem 1.2rem;
+      background: #3a6b2e;
+      color: #fff;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.15s;
+      flex-shrink: 0;
+      letter-spacing: 0.01em;
+    }
+    .btn-reg:hover { background: #2a4e20; }
+    .btn-reg-full {
+      background: #e8e4dc;
+      color: #9a8870;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #d4c9b0;
+      margin: 1rem 0;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #7a6e5e;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
+    .empty p { font-size: 0.92rem; }
+
+    .widget-footer {
+      margin-top: 1.1rem;
+      text-align: center;
+      font-size: 0.72rem;
+      color: #b0a590;
+    }
+    .widget-footer a { color: #3a6b2e; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="widget-header">
+  <img src="https://cdn.myshoptet.com/usr/www.veselykosec.sk/user/logos/2.png"
+       alt="Veselý Kosec" class="logo-img">
+  <div class="widget-title-wrap">
+    <h2>Kurzy kosenia kosou</h2>
+    <p>Vyberte termín a prihláste sa online</p>
+  </div>
+</div>
+
+{% if sessions %}
+  {% for s in sessions %}
+    {% set left = s.spots_left %}
+    <div class="session-card">
+      <div class="session-info">
+        <div class="session-name">{{ s.name }}</div>
+        <div class="session-meta">
+          {% if s.date %}<span class="meta-item">📅 {{ s.date | fmt_date }}</span>{% endif %}
+          {% if s.time %}<span class="meta-item">🕐 {{ s.time | fmt_time }}</span>{% endif %}
+          {% if s.location %}<span class="meta-item">📍 {{ s.location }}</span>{% endif %}
+        </div>
+        {% if left is not none %}
+          {% if left == 0 %}
+            <div><span class="spots spots-full">Obsadený</span></div>
+          {% elif left <= 3 %}
+            <div><span class="spots spots-low">Posledné {{ left }} miesta</span></div>
+          {% else %}
+            <div><span class="spots spots-ok">{{ left }} voľných miest</span></div>
+          {% endif %}
+        {% endif %}
+      </div>
+      {% if left == 0 %}
+        <span class="btn-reg btn-reg-full">Obsadený</span>
+      {% else %}
+        <a href="{{ url_for('prihlasenie', session_id=s.id) }}" class="btn-reg">
+          Prihlásiť sa →
+        </a>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="empty">
+    <div class="empty-icon">🌾</div>
+    <p><strong>Momentálne nie sú vypísané termíny.</strong></p>
+    <p style="margin-top:0.35rem;font-size:0.82rem">Sledujte nás pre aktuálne termíny kurzov.</p>
+  </div>
+{% endif %}
+
+<div class="widget-footer">
+  <a href="https://www.veselykosec.sk/" target="_blank">veselykosec.sk</a>
+  &nbsp;·&nbsp; info@veselykosec.sk &nbsp;·&nbsp; +421 950 321 988
+</div>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prihlásenie — Veselý Kosec CRM</title>
+  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f7f4ee;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e0ddd5;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 2rem 1.75rem;
+      width: 100%;
+      max-width: 360px;
+    }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .logo-wrap img { width: 48px; height: 48px; object-fit: contain; }
+    .logo-wrap-text h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #2a4e20;
+    }
+    .logo-wrap-text p {
+      font-size: 0.72rem;
+      color: #7a6e5e;
+      margin-top: 0.1rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #7a6e5e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      min-height: 46px;
+      padding: 0.5rem 0.85rem;
+      border: 1.5px solid #d4c9b0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Nunito', sans-serif;
+      color: #1e1b14;
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+    input:focus {
+      outline: none;
+      border-color: #3a6b2e;
+      box-shadow: 0 0 0 3px rgba(58,107,46,0.12);
+    }
+    .btn {
+      width: 100%;
+      min-height: 50px;
+      background: #3a6b2e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #2a4e20; }
+    .error {
+      background: #f5ddd8;
+      color: #7a1e1e;
+      border-left: 4px solid #b52a2a;
+      padding: 0.65rem 0.9rem;
+      border-radius: 7px;
+      margin-bottom: 1rem;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-wrap">
+    <img src="https://cdn.myshoptet.com/usr/www.veselykosec.sk/user/logos/2.png" alt="Veselý Kosec">
+    <div class="logo-wrap-text">
+      <h1>Veselý Kosec</h1>
+      <p>Správa záujemcov</p>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="username">Meno</label>
+      <input type="text" id="username" name="username" autocomplete="username"
+             autofocus required>
+    </div>
+    <div class="form-group">
+      <label for="password">Heslo</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn">Prihlásiť sa →</button>
+  </form>
+</div>
+</body>
+</html>

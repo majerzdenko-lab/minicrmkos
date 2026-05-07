@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prihlásenie na kurz — Veselý Kosec</title>
+  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #fff;
+      color: #1e1b14;
+      min-height: 100vh;
+      font-size: 15px;
+    }
+
+    /* ── Top bar ── */
+    .top-bar {
+      background: #fff;
+      border-bottom: 1px solid #d4c9b0;
+      padding: 0.55rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .top-bar-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #2a4e20;
+    }
+    .top-bar-sub { font-size: 0.72rem; color: #7a6e5e; }
+
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 2.5rem;
+    }
+
+    /* ── Session info card ── */
+    .session-card {
+      background: #2a4e20;
+      color: #fff;
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .session-card-name {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .session-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      font-size: 0.84rem;
+      opacity: 0.88;
+    }
+    .spots-chip {
+      display: inline-block;
+      margin-top: 0.55rem;
+      padding: 0.18rem 0.65rem;
+      border-radius: 12px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+    .spots-ok   { background: #e0eed8; color: #1e4a14; }
+    .spots-low  { background: #fef3d0; color: #7a5200; }
+    .spots-full { background: #f5ddd8; color: #7a1e1e; }
+
+    /* ── Form card ── */
+    .form-card {
+      background: #fff;
+      border: 1px solid #e0ddd5;
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+    .form-card h3 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #2a4e20;
+      margin-bottom: 1.1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #f0ece3;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .form-group { margin-bottom: 0.9rem; }
+    .form-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #7a6e5e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+    .form-control {
+      width: 100%;
+      min-height: 46px;
+      padding: 0.5rem 0.85rem;
+      border: 1.5px solid #d4c9b0;
+      border-radius: 8px;
+      font-size: 0.94rem;
+      font-family: 'Nunito', sans-serif;
+      background: #fff;
+      color: #1e1b14;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #3a6b2e;
+      box-shadow: 0 0 0 3px rgba(58,107,46,0.12);
+    }
+    .form-hint { font-size: 0.74rem; color: #9a8870; margin-top: 0.25rem; }
+
+    .btn-submit {
+      width: 100%;
+      min-height: 50px;
+      background: #3a6b2e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover { background: #2a4e20; }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .error-box {
+      background: #f5ddd8;
+      color: #7a1e1e;
+      border-left: 4px solid #b52a2a;
+      padding: 0.75rem 1rem;
+      border-radius: 7px;
+      margin-bottom: 1rem;
+      font-size: 0.88rem;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: #7a6e5e;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #3a6b2e; }
+
+    .closed-box {
+      background: #fff;
+      border: 1px solid #e0ddd5;
+      border-radius: 10px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: #7a6e5e;
+    }
+    .closed-box strong { color: #1e1b14; font-size: 1rem; display: block; margin-bottom: 0.5rem; }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.72rem;
+      color: #b0a590;
+    }
+    .footer a { color: #3a6b2e; text-decoration: none; }
+
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <img src="https://cdn.myshoptet.com/usr/www.veselykosec.sk/user/logos/2.png"
+       alt="Veselý Kosec" class="logo-img">
+  <div>
+    <div class="top-bar-title">Veselý Kosec</div>
+    <div class="top-bar-sub">Prihlásenie na kurz kosenia</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  {% if not is_open %}
+    <div class="closed-box">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem">🌾</div>
+      <strong>Prihlasovanie momentálne nie je otvorené.</strong>
+      <p style="font-size:0.85rem">Sledujte nás pre aktuálne termíny.</p>
+      <a href="{{ url_for('kurzy_widget') }}"
+         style="display:inline-block;margin-top:1rem;color:#3a6b2e;font-size:0.85rem">
+        ← Všetky termíny
+      </a>
+    </div>
+
+  {% else %}
+
+    <div class="session-card">
+      <div class="session-card-name">{{ sess.name }}</div>
+      <div class="session-card-meta">
+        {% if sess.date %}<span>📅 {{ sess.date | fmt_date }}</span>{% endif %}
+        {% if sess.time %}<span>🕐 {{ sess.time | fmt_time }}</span>{% endif %}
+        {% if sess.location %}<span>📍 {{ sess.location }}</span>{% endif %}
+      </div>
+      {% set left = sess.spots_left %}
+      {% if left is not none %}
+        {% if left == 0 %}
+          <div><span class="spots-chip spots-full">Obsadený</span></div>
+        {% elif left <= 3 %}
+          <div><span class="spots-chip spots-low">Posledné {{ left }} miesta</span></div>
+        {% else %}
+          <div><span class="spots-chip spots-ok">{{ left }} voľných miest</span></div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {% if error %}
+      <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    {% if sess.spots_left == 0 %}
+      <div class="closed-box">
+        <strong>Tento termín je obsadený.</strong>
+        <p style="font-size:0.85rem">Skúste iný termín alebo nás kontaktujte.</p>
+        <a href="{{ url_for('kurzy_widget') }}"
+           style="display:inline-block;margin-top:1rem;color:#3a6b2e;font-size:0.85rem">
+          ← Iné termíny
+        </a>
+      </div>
+
+    {% else %}
+      <div class="form-card">
+        <h3>Vaše údaje</h3>
+        <form method="POST" action="{{ url_for('prihlasenie', session_id=sess.id) }}">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Meno *</label>
+              <input type="text" name="first_name" class="form-control"
+                     placeholder="Ján" required autocomplete="given-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priezvisko *</label>
+              <input type="text" name="last_name" class="form-control"
+                     placeholder="Novák" required autocomplete="family-name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-mail</label>
+            <input type="email" name="email" class="form-control"
+                   placeholder="vas@email.sk" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefón</label>
+            <input type="tel" name="phone" class="form-control"
+                   placeholder="+421 9xx xxx xxx" autocomplete="tel">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Výška (cm)</label>
+            <input type="number" name="height" class="form-control"
+                   placeholder="175" min="100" max="230">
+            <p class="form-hint">Výška slúži na správne nastavenie dĺžky kosiska.</p>
+          </div>
+          <p style="font-size:0.74rem;color:#9a8870;margin-bottom:0.75rem">
+            * Povinné polia. Zadajte aspoň e-mail alebo telefón.
+          </p>
+          <button type="submit" class="btn-submit">Prihlásiť sa na kurz →</button>
+        </form>
+      </div>
+
+      <a href="{{ url_for('kurzy_widget') }}" class="back-link">← Všetky termíny</a>
+    {% endif %}
+
+  {% endif %}
+
+  <div class="footer">
+    <a href="https://www.veselykosec.sk/" target="_blank">veselykosec.sk</a>
+    &nbsp;·&nbsp; info@veselykosec.sk &nbsp;·&nbsp; +421 950 321 988
+  </div>
+</div>
+
+</body>
+</html>

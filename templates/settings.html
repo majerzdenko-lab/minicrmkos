@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Nastavenia{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Nastavenia</h1>
+</div>
+
+{# ── Termíny kurzov ───────────────────────────────────────────────────── #}
+<div class="settings-block">
+  <div class="settings-block-title">Termíny kurzov</div>
+
+  {# Existing sessions #}
+  {% if sessions %}
+    <div style="margin-bottom:1rem">
+      {% for s in sessions %}
+        <div class="session-row {% if not s.is_active %}session-inactive{% endif %}">
+          <div class="session-info">
+            <span class="session-name">{{ s.name }}</span>
+            <span class="session-meta">
+              {% if s.date %}{{ s.date | fmt_date }}{% endif %}
+              {% if s.time %} · {{ s.time | fmt_time }}{% endif %}
+              {% if s.location %} · {{ s.location }}{% endif %}
+              · {{ s.registered_count }}/{{ s.capacity }} prihlásených
+            </span>
+          </div>
+          <div class="session-actions">
+            {% if s.is_active %}
+              <span class="session-badge-active">aktívny</span>
+            {% else %}
+              <span class="session-badge-inactive">skrytý</span>
+            {% endif %}
+            <form method="POST" action="{{ url_for('session_toggle', id=s.id) }}" style="display:inline">
+              <button type="submit" class="btn btn-secondary btn-sm">
+                {{ 'Skryť' if s.is_active else 'Zobraziť' }}
+              </button>
+            </form>
+            <form method="POST" action="{{ url_for('session_delete', id=s.id) }}" style="display:inline"
+                  onsubmit="return confirm('Zmazať termín {{ s.name }}?')">
+              <button type="submit" class="btn btn-danger btn-sm">Zmazať</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:1rem">Zatiaľ žiadne termíny.</p>
+  {% endif %}
+
+  {# Add new session #}
+  <div class="card" style="margin-bottom:0">
+    <div class="card-title">+ Pridať termín</div>
+    <form method="POST" action="{{ url_for('session_add') }}">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Názov</label>
+          <input type="text" name="name" class="form-control" placeholder="Kurz kosenia" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Miesto</label>
+          <input type="text" name="location" class="form-control" placeholder="Adresa, miesto">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Dátum</label>
+          <input type="date" name="date" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Čas</label>
+          <input type="time" name="time" class="form-control">
+        </div>
+      </div>
+      <div class="form-group" style="max-width:180px">
+        <label class="form-label">Kapacita</label>
+        <input type="number" name="capacity" class="form-control" min="1" value="10">
+      </div>
+      <button type="submit" class="btn btn-primary">Pridať termín</button>
+    </form>
+  </div>
+</div>
+
+{# ── Shoptet widget ───────────────────────────────────────────────────── #}
+<div class="settings-block">
+  <div class="settings-block-title">Shoptet widget — embed kód</div>
+  <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">
+    Skopírujte kód a vložte ho do Shoptet HTML editora. Zákazníci uvidia zoznam termínov a po kliknutí sa môžu prihlásiť.
+  </p>
+  <div class="embed-box">
+    <pre id="embed-code" class="embed-pre">&lt;iframe
+  src="{{ base_url }}/kurzy"
+  width="100%"
+  height="520"
+  frameborder="0"
+  style="border:none;border-radius:8px"
+  loading="lazy"
+&gt;&lt;/iframe&gt;</pre>
+    <button onclick="copyEmbed()" class="btn btn-secondary btn-sm" style="margin-top:0.5rem">
+      Kopírovať kód
+    </button>
+    <a href="{{ base_url }}/kurzy" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:0.5rem">
+      Náhľad widgetu
+    </a>
+  </div>
+  <script>
+    function copyEmbed() {
+      const text = document.getElementById('embed-code').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Kód skopírovaný!');
+      });
+    }
+  </script>
+</div>
+
+{# ── Aktívny kurz (CRM interný) ───────────────────────────────────────── #}
+<div class="settings-block">
+  <div class="settings-block-title">Interný kurz (CRM)</div>
+  <div class="card">
+    <form method="POST" action="{{ url_for('settings_course') }}">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Názov kurzu</label>
+          <input type="text" name="name" class="form-control"
+                 value="{{ course.name or '' }}" placeholder="Kurz kosenia">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Miesto</label>
+          <input type="text" name="location" class="form-control"
+                 value="{{ course.location or '' }}" placeholder="Adresa">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Dátum</label>
+          <input type="date" name="date" class="form-control"
+                 value="{{ course.date.isoformat() if course and course.date else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Čas</label>
+          <input type="time" name="time" class="form-control"
+                 value="{{ course.time.strftime('%H:%M') if course and course.time else '' }}">
+        </div>
+      </div>
+      <div class="form-group" style="max-width:200px">
+        <label class="form-label">Kapacita</label>
+        <input type="number" name="capacity" class="form-control" min="1"
+               value="{{ course.capacity or 10 }}">
+      </div>
+      <button type="submit" class="btn btn-primary">Uložiť</button>
+    </form>
+  </div>
+</div>
+
+{# ── Email šablóny ────────────────────────────────────────────────────── #}
+<div class="settings-block">
+  <div class="settings-block-title">Email šablóny</div>
+  <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">
+    Placeholder <code style="background:var(--bg);padding:0.1rem 0.3rem;border-radius:3px">{meno}</code>
+    bude nahradený menom záujemcu.
+  </p>
+  {% for s in status_order %}
+    {% set t = templates.get(s) %}
+    <div class="template-item">
+      <div class="template-item-header">
+        <span class="badge badge-{{ s | slug }}">{{ s }}</span>
+      </div>
+      <div class="template-item-body">
+        <form method="POST" action="{{ url_for('settings_template', status=s) }}">
+          <div class="template-form-row">
+            <div class="form-group" style="margin-bottom:0.75rem">
+              <label class="form-label">Predmet</label>
+              <input type="text" name="subject" class="form-control"
+                     value="{{ t.subject if t else '' }}" placeholder="Predmet emailu">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Telo emailu</label>
+              <textarea name="body" class="form-control" rows="5"
+                        placeholder="Text emailu...">{{ t.body if t else '' }}</textarea>
+            </div>
+          </div>
+          <div class="template-actions">
+            <button type="submit" class="btn btn-primary btn-sm">Uložiť šablónu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

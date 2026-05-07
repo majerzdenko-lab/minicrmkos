@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}{{ contact.name }}{% endblock %}
+
+{% block content %}
+
+<div class="detail-header">
+  <div>
+    <div class="detail-title">{{ contact.name }}</div>
+    <div style="margin-top:0.3rem;display:flex;align-items:center;gap:0.5rem">
+      <span id="status-badge" class="badge badge-{{ contact.status | slug }}">{{ contact.status }}</span>
+      {% if contact.course_ref %}
+        <span style="font-size:0.8rem;color:var(--text-muted)">📅 {{ contact.course_ref }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="detail-actions">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">← Späť</a>
+  </div>
+</div>
+
+{# ── Email sekcia ─────────────────────────────────────────────────────── #}
+<div class="email-box" id="email-box">
+  <div class="email-box-header">
+    <span>✉ Email pre stav <strong id="email-status-label">{{ contact.status }}</strong></span>
+    {% if contact.email %}
+      <a id="gmail-btn" href="{{ gmail_url or '#' }}"
+         target="_blank" rel="noopener"
+         class="btn btn-primary btn-sm"
+         {% if not gmail_url %}style="display:none"{% endif %}>
+        Otvoriť v Gmail
+      </a>
+    {% else %}
+      <span class="no-email-hint">⚠ Kontakt nemá email — skopírujte text ručne</span>
+    {% endif %}
+  </div>
+  <form method="POST" id="template-form"
+        action="{{ url_for('settings_template', status=contact.status) }}">
+    <input type="hidden" name="_next" value="{{ url_for('contact_detail', id=contact.id) }}">
+    <div style="padding:0.75rem 1rem">
+      <div class="form-group">
+        <label class="form-label">Predmet</label>
+        <input type="text" id="tpl-subject" name="subject" class="form-control"
+               value="{{ email_template.subject if email_template else '' }}">
+      </div>
+      <div class="form-group" style="margin-bottom:0.5rem">
+        <label class="form-label">
+          Text emailu
+          <span style="font-weight:400;text-transform:none;color:var(--text-muted)">
+            — <code style="background:var(--bg);padding:0.05rem 0.3rem;border-radius:3px">{meno}</code>
+            → {{ contact.name }}
+          </span>
+        </label>
+        <textarea id="tpl-body" name="body" class="form-control" rows="5">{{ email_template.body if email_template else '' }}</textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+        <button type="submit" class="btn btn-secondary btn-sm">Uložiť šablónu</button>
+        <span id="no-template-hint" style="font-size:0.78rem;color:var(--text-muted);display:none">
+          Pre tento stav ešte nie je šablóna.
+        </span>
+      </div>
+    </div>
+  </form>
+</div>
+
+{# ── Kontakt formulár ─────────────────────────────────────────────────── #}
+<div class="card">
+  <form method="POST" action="{{ url_for('contact_detail', id=contact.id) }}">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Meno *</label>
+        <input type="text" name="name" class="form-control" value="{{ contact.name }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stav</label>
+        <select id="status-select" name="status" class="form-control">
+          {% for s in status_order %}
+            <option value="{{ s }}" {% if contact.status == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Telefón</label>
+        <input type="tel" name="phone" class="form-control" value="{{ contact.phone or '' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input id="contact-email" type="email" name="email" class="form-control"
+               value="{{ contact.email or '' }}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Zdroj</label>
+        <select name="source" class="form-control">
+          {% for src in sources %}
+            <option value="{{ src }}" {% if contact.source == src %}selected{% endif %}>{{ src }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kurz</label>
+        <div style="display:flex;gap:0.5rem">
+          <input type="text" name="course_ref" class="form-control"
+                 value="{{ contact.course_ref or '' }}"
+                 placeholder="napr. Kurz kosenia · 15. 6. 2026">
+          {% if course and course.name %}
+            <form method="POST" action="{{ url_for('contact_assign_course', id=contact.id) }}"
+                  style="flex-shrink:0">
+              <button type="submit" class="btn btn-secondary btn-sm" style="white-space:nowrap"
+                      title="Priradiť k aktuálnemu kurzu: {{ course.name }}">
+                Priradiť
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Poznámka</label>
+      <textarea name="note" class="form-control">{{ contact.note or '' }}</textarea>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem">
+      <button type="submit" class="btn btn-primary">Uložiť zmeny</button>
+      <form method="POST" action="{{ url_for('contact_delete', id=contact.id) }}"
+            onsubmit="return confirm('Naozaj zmazať kontakt {{ contact.name }}?')">
+        <button type="submit" class="btn btn-danger btn-sm">Zmazať kontakt</button>
+      </form>
+    </div>
+  </form>
+</div>
+
+<div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem">
+  Pridaný: {{ contact.created_at.strftime('%-d. %-m. %Y') if contact.created_at else '—' }}
+  &nbsp;·&nbsp;
+  Stav od: {{ contact.status_changed_at.strftime('%-d. %-m. %Y') if contact.status_changed_at else '—' }}
+</div>
+
+{# ── JS: live update email template on status change ─────────────────── #}
+<script>
+const TEMPLATES = {{ all_templates | tojson }};
+const NAME      = {{ contact.name | tojson }};
+const EMAIL     = document.getElementById('contact-email');
+
+function buildGmailUrl(to, subject, body) {
+  if (!to) return null;
+  return 'https://mail.google.com/mail/?view=cm&fs=1'
+    + '&to='   + encodeURIComponent(to)
+    + '&su='   + encodeURIComponent(subject)
+    + '&body=' + encodeURIComponent(body);
+}
+
+function updateEmailSection(status) {
+  const tpl = TEMPLATES[status];
+  const label = document.getElementById('email-status-label');
+  const subjectEl = document.getElementById('tpl-subject');
+  const bodyEl    = document.getElementById('tpl-body');
+  const form      = document.getElementById('template-form');
+  const hint      = document.getElementById('no-template-hint');
+  const gmailBtn  = document.getElementById('gmail-btn');
+
+  label.textContent = status;
+
+  // Update template form action to point to the new status
+  form.action = '/settings/template/' + encodeURIComponent(status);
+
+  if (tpl) {
+    subjectEl.value = tpl.subject;
+    bodyEl.value    = tpl.body;
+    if (hint) hint.style.display = 'none';
+  } else {
+    subjectEl.value = '';
+    bodyEl.value    = '';
+    if (hint) hint.style.display = 'inline';
+  }
+
+  // Rebuild Gmail link with current email field value
+  if (gmailBtn) {
+    const to      = EMAIL ? EMAIL.value.trim() : '';
+    const subject = tpl ? tpl.subject.replace(/{meno}/g, NAME) : '';
+    const body    = tpl ? tpl.body.replace(/{meno}/g, NAME)    : '';
+    const url     = buildGmailUrl(to, subject, body);
+    if (url) {
+      gmailBtn.href = url;
+      gmailBtn.style.display = '';
+    } else {
+      gmailBtn.style.display = 'none';
+    }
+  }
+}
+
+// Status dropdown change → update email section immediately
+document.getElementById('status-select').addEventListener('change', function() {
+  updateEmailSection(this.value);
+});
+
+// Email field change → rebuild Gmail link
+if (EMAIL) {
+  EMAIL.addEventListener('input', function() {
+    const status = document.getElementById('status-select').value;
+    updateEmailSection(status);
+  });
+}
+</script>
+
+{% endblock %}

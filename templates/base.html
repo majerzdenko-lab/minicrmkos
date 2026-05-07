@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mini CRM{% endblock %} — Veselý Kosec</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#2a4e20">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="VK CRM">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="{{ url_for('index') }}" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none">
+      <img src="https://cdn.myshoptet.com/usr/www.veselykosec.sk/user/logos/2.png"
+           alt="Veselý Kosec" style="width:44px;height:44px;object-fit:contain">
+      <span class="site-title">Veselý Kosec <span>· CRM</span></span>
+    </a>
+    {% if course and course.name %}
+      {% set cap = course.capacity or 0 %}
+      <span class="capacity-badge {% if cap > 0 and confirmed_count >= cap %}capacity-full{% else %}capacity-ok{% endif %}">
+        {{ confirmed_count }}/{{ cap }} potvrdených
+      </span>
+    {% endif %}
+  </div>
+  <nav class="main-nav">
+    <a href="{{ url_for('index') }}"    class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Kontakty</a>
+    <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">Nastavenia</a>
+    <a href="{{ url_for('history') }}"  class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">História</a>
+    <form method="POST" action="{{ url_for('logout') }}" style="margin-left:auto">
+      <button type="submit" class="nav-link" style="background:none;border:none;cursor:pointer;opacity:0.7">Odhlásiť</button>
+    </form>
+  </nav>
+</header>
+
+<main class="main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>
