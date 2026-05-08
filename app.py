@@ -7,7 +7,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, ses
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_mail import Mail, Message
+import resend
 from models import db, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, STATUS_ORDER, SOURCES
 
 app = Flask(__name__)
@@ -19,14 +19,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///crm.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
-app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = os.environ.get("GMAIL_USER", "")
-app.config["MAIL_PASSWORD"] = os.environ.get("GMAIL_APP_PASSWORD", "")
-app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("GMAIL_USER", "")
-
-mail = Mail(app)
+resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
 db.init_app(app)
 
@@ -182,15 +175,20 @@ with app.app_context():
 
 
 def send_mail(to, subject, body):
-    """Send email in a background thread — never blocks or crashes the request."""
-    if not os.environ.get("GMAIL_USER"):
+    """Send email via Resend API in a background thread."""
+    if not os.environ.get("RESEND_API_KEY"):
         return
+    mail_from = os.environ.get("MAIL_FROM", "onboarding@resend.dev")
+    recipients = [to] if isinstance(to, str) else to
     def _send():
         try:
-            with app.app_context():
-                recipients = [to] if isinstance(to, str) else to
-                msg = Message(subject, recipients=recipients, body=body)
-                mail.send(msg)
+            resend.api_key = os.environ.get("RESEND_API_KEY", "")
+            resend.Emails.send({
+                "from": mail_from,
+                "to": recipients,
+                "subject": subject,
+                "text": body,
+            })
         except Exception as e:
             app.logger.error(f"send_mail failed: {e}")
     threading.Thread(target=_send, daemon=True).start()
