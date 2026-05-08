@@ -1,4 +1,5 @@
 import os
+import threading
 from datetime import datetime, timedelta, date, time as dtime
 from functools import wraps
 
@@ -181,15 +182,18 @@ with app.app_context():
 
 
 def send_mail(to, subject, body):
-    """Send email silently — never crash the app if mail fails."""
-    if not app.config.get("GMAIL_USER") and not os.environ.get("GMAIL_USER"):
+    """Send email in a background thread — never blocks or crashes the request."""
+    if not os.environ.get("GMAIL_USER"):
         return
-    try:
-        recipients = [to] if isinstance(to, str) else to
-        msg = Message(subject, recipients=recipients, body=body)
-        mail.send(msg)
-    except Exception:
-        pass
+    def _send():
+        try:
+            with app.app_context():
+                recipients = [to] if isinstance(to, str) else to
+                msg = Message(subject, recipients=recipients, body=body)
+                mail.send(msg)
+        except Exception:
+            pass
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def course_label(obj):
