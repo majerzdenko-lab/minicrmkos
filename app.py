@@ -339,7 +339,7 @@ def settings():
     course = Course.query.first()
     templates = {t.status: t for t in EmailTemplate.query.all()}
     sessions = CourseSession.query.order_by(CourseSession.date).all()
-    base_url = request.host_url.rstrip("/")
+    base_url = request.host_url.rstrip("/").replace("http://", "https://", 1)
     return render_template("settings.html", course=course, templates=templates,
                            sessions=sessions, base_url=base_url)
 
