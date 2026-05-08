@@ -486,7 +486,29 @@ def kurzy_widget():
                 .filter_by(is_active=True)
                 .order_by(CourseSession.date)
                 .all())
-    return render_template("kurzy.html", sessions=sessions)
+    return render_template("kurzy.html", sessions=sessions, notify_sent=False)
+
+
+@app.route("/kurzy/notifikacia", methods=["POST"])
+def kurzy_notify():
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip()
+    phone = request.form.get("phone", "").strip()
+    if name and (email or phone):
+        contact = Contact(
+            name=name,
+            email=email,
+            phone=phone,
+            source="web",
+            note="Záujem o oznámenie termínov kurzu",
+        )
+        db.session.add(contact)
+        db.session.commit()
+    sessions = (CourseSession.query
+                .filter_by(is_active=True)
+                .order_by(CourseSession.date)
+                .all())
+    return render_template("kurzy.html", sessions=sessions, notify_sent=True)
 
 
 @app.route("/prihlasenie/<int:session_id>", methods=["GET", "POST"])
