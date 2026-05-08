@@ -1,7 +1,6 @@
 import os
 from datetime import datetime, timedelta, date, time as dtime
 from functools import wraps
-from urllib.parse import quote
 
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -180,19 +179,6 @@ with app.app_context():
     seed_defaults()
 
 
-def build_gmail_url(contact, template):
-    """Return a Gmail compose URL, or None if contact has no email."""
-    if not template or not contact.email:
-        return None
-    body = template.body.replace("{meno}", contact.name)
-    subject = template.subject.replace("{meno}", contact.name)
-    return (
-        "https://mail.google.com/mail/?view=cm&fs=1"
-        f"&to={quote(contact.email, safe='')}"
-        f"&su={quote(subject, safe='')}"
-        f"&body={quote(body, safe='')}"
-    )
-
 
 def send_mail(to, subject, body):
     """Send email silently — never crash the app if mail fails."""
@@ -355,7 +341,6 @@ def contact_detail(id):
         return redirect(url_for("contact_detail", id=id))
 
     email_template = EmailTemplate.query.filter_by(status=contact.status).first()
-    gmail_url = build_gmail_url(contact, email_template)
     all_templates = {
         t.status: {"subject": t.subject or "", "body": t.body or ""}
         for t in EmailTemplate.query.all()
@@ -363,7 +348,6 @@ def contact_detail(id):
     return render_template(
         "contact.html",
         contact=contact,
-        gmail_url=gmail_url,
         email_template=email_template,
         all_templates=all_templates,
     )

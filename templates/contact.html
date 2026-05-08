@@ -144,29 +144,16 @@
 {# ── JS: live update email template on status change ─────────────────── #}
 <script>
 const TEMPLATES = {{ all_templates | tojson }};
-const NAME      = {{ contact.name | tojson }};
-const EMAIL     = document.getElementById('contact-email');
-
-function buildGmailUrl(to, subject, body) {
-  if (!to) return null;
-  return 'https://mail.google.com/mail/?view=cm&fs=1'
-    + '&to='   + encodeURIComponent(to)
-    + '&su='   + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(body);
-}
 
 function updateEmailSection(status) {
-  const tpl = TEMPLATES[status];
-  const label = document.getElementById('email-status-label');
+  const tpl       = TEMPLATES[status];
+  const label     = document.getElementById('email-status-label');
   const subjectEl = document.getElementById('tpl-subject');
   const bodyEl    = document.getElementById('tpl-body');
   const form      = document.getElementById('template-form');
   const hint      = document.getElementById('no-template-hint');
-  const gmailBtn  = document.getElementById('gmail-btn');
 
   label.textContent = status;
-
-  // Update template form action to point to the new status
   form.action = '/settings/template/' + encodeURIComponent(status);
 
   if (tpl) {
@@ -178,34 +165,11 @@ function updateEmailSection(status) {
     bodyEl.value    = '';
     if (hint) hint.style.display = 'inline';
   }
-
-  // Rebuild Gmail link with current email field value
-  if (gmailBtn) {
-    const to      = EMAIL ? EMAIL.value.trim() : '';
-    const subject = tpl ? tpl.subject.replace(/{meno}/g, NAME) : '';
-    const body    = tpl ? tpl.body.replace(/{meno}/g, NAME)    : '';
-    const url     = buildGmailUrl(to, subject, body);
-    if (url) {
-      gmailBtn.href = url;
-      gmailBtn.style.display = '';
-    } else {
-      gmailBtn.style.display = 'none';
-    }
-  }
 }
 
-// Status dropdown change → update email section immediately
 document.getElementById('status-select').addEventListener('change', function() {
   updateEmailSection(this.value);
 });
-
-// Email field change → rebuild Gmail link
-if (EMAIL) {
-  EMAIL.addEventListener('input', function() {
-    const status = document.getElementById('status-select').value;
-    updateEmailSection(status);
-  });
-}
 </script>
 
 {% endblock %}
