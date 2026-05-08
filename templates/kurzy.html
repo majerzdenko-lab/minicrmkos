@@ -197,6 +197,7 @@
       <h3>Momentálne nie sú vypísané termíny.</h3>
       <p>Zanechajte nám kontakt a dáme vám vedieť, keď vypíšeme nový termín.</p>
       <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
+        <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
         <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
         <input type="email" name="email" placeholder="E-mail" autocomplete="email">
         <input type="tel" name="phone" placeholder="Telefón" autocomplete="tel">

@@ -5,6 +5,8 @@ from urllib.parse import quote
 
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from models import db, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, STATUS_ORDER, SOURCES
 
 app = Flask(__name__)
@@ -17,6 +19,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
 db.init_app(app)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri="memory://",
+)
 
 
 # ── Auth ───────────────────────────────────────────────────────────────────────
@@ -490,7 +499,11 @@ def kurzy_widget():
 
 
 @app.route("/kurzy/notifikacia", methods=["POST"])
+@limiter.limit("5 per minute; 20 per hour")
 def kurzy_notify():
+    if request.form.get("website"):  # honeypot
+        sessions = CourseSession.query.filter_by(is_active=True).order_by(CourseSession.date).all()
+        return render_template("kurzy.html", sessions=sessions, notify_sent=True)
     name = request.form.get("name", "").strip()
     email = request.form.get("email", "").strip()
     phone = request.form.get("phone", "").strip()
@@ -512,6 +525,7 @@ def kurzy_notify():
 
 
 @app.route("/prihlasenie/<int:session_id>", methods=["GET", "POST"])
+@limiter.limit("10 per minute; 30 per hour")
 def prihlasenie(session_id):
     sess = CourseSession.query.get_or_404(session_id)
     if not sess.is_active:
@@ -519,6 +533,8 @@ def prihlasenie(session_id):
 
     error = None
     if request.method == "POST":
+        if request.form.get("website"):  # honeypot
+            return redirect(url_for("prihlasenie_dakujeme", session_id=sess.id))
         first = request.form.get("first_name", "").strip()
         last  = request.form.get("last_name", "").strip()
         email = request.form.get("email", "").strip()
