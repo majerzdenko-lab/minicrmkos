@@ -7,6 +7,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, ses
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_mail import Mail, Message
 from models import db, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, STATUS_ORDER, SOURCES
 
 app = Flask(__name__)
@@ -17,6 +18,15 @@ if db_url.startswith("postgres://"):
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///crm.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = os.environ.get("GMAIL_USER", "")
+app.config["MAIL_PASSWORD"] = os.environ.get("GMAIL_APP_PASSWORD", "")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("GMAIL_USER", "")
+
+mail = Mail(app)
 
 db.init_app(app)
 
@@ -184,6 +194,18 @@ def build_gmail_url(contact, template):
     )
 
 
+def send_mail(to, subject, body):
+    """Send email silently — never crash the app if mail fails."""
+    if not app.config.get("GMAIL_USER") and not os.environ.get("GMAIL_USER"):
+        return
+    try:
+        recipients = [to] if isinstance(to, str) else to
+        msg = Message(subject, recipients=recipients, body=body)
+        mail.send(msg)
+    except Exception:
+        pass
+
+
 def course_label(obj):
     """Human-readable label for a Course or CourseSession, used as course_ref text."""
     if not obj or not obj.name:
@@ -274,6 +296,24 @@ def contact_regress(id):
             contact.status_changed_at = datetime.utcnow()
             db.session.commit()
     return redirect(request.referrer or url_for("index"))
+
+
+@app.route("/contact/<int:id>/send-email", methods=["POST"])
+@login_required
+def contact_send_email(id):
+    contact = Contact.query.get_or_404(id)
+    if not contact.email:
+        flash("Kontakt nemá zadaný email.", "error")
+        return redirect(url_for("contact_detail", id=id))
+    template = EmailTemplate.query.filter_by(status=contact.status).first()
+    if not template:
+        flash("Pre tento stav nie je nastavená šablóna.", "error")
+        return redirect(url_for("contact_detail", id=id))
+    subject = template.subject.replace("{meno}", contact.name)
+    body = template.body.replace("{meno}", contact.name)
+    send_mail(contact.email, subject, body)
+    flash(f"Email odoslaný na {contact.email}.", "success")
+    return redirect(url_for("contact_detail", id=id))
 
 
 @app.route("/contact/<int:id>/assign-course", methods=["POST"])
@@ -517,6 +557,11 @@ def kurzy_notify():
         )
         db.session.add(contact)
         db.session.commit()
+        admin = os.environ.get("GMAIL_USER", "")
+        if admin:
+            send_mail(admin,
+                f"Nový záujemca o kurz: {name}",
+                f"Meno: {name}\nEmail: {email or '—'}\nTelefón: {phone or '—'}\n\nZáujem o oznámenie termínov kurzu.")
     sessions = (CourseSession.query
                 .filter_by(is_active=True)
                 .order_by(CourseSession.date)
@@ -557,6 +602,18 @@ def prihlasenie(session_id):
             )
             db.session.add(contact)
             db.session.commit()
+            admin = os.environ.get("GMAIL_USER", "")
+            if admin:
+                sess_label = course_label(sess)
+                send_mail(admin,
+                    f"Nová prihláška: {name} — {sess_label}",
+                    f"Meno: {name}\nEmail: {email or '—'}\nTelefón: {phone or '—'}\nVýška: {height or '—'}\nKurz: {sess_label}")
+            if email:
+                tmpl = EmailTemplate.query.filter_by(status="potvrdený").first()
+                if tmpl:
+                    send_mail(email,
+                        tmpl.subject.replace("{meno}", first),
+                        tmpl.body.replace("{meno}", first))
             return redirect(url_for("prihlasenie_dakujeme", session_id=sess.id))
 
     return render_template("prihlasenie.html", sess=sess, is_open=True, error=error)

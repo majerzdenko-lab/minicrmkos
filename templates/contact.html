@@ -23,14 +23,14 @@
   <div class="email-box-header">
     <span>✉ Email pre stav <strong id="email-status-label">{{ contact.status }}</strong></span>
     {% if contact.email %}
-      <a id="gmail-btn" href="{{ gmail_url or '#' }}"
-         target="_blank" rel="noopener"
-         class="btn btn-primary btn-sm"
-         {% if not gmail_url %}style="display:none"{% endif %}>
-        Otvoriť v Gmail
-      </a>
+      <form method="POST" action="{{ url_for('contact_send_email', id=contact.id) }}" style="display:inline">
+        <button type="submit" class="btn btn-primary btn-sm"
+                onclick="return confirm('Odoslať email na {{ contact.email }}?')">
+          ✉ Poslať email
+        </button>
+      </form>
     {% else %}
-      <span class="no-email-hint">⚠ Kontakt nemá email — skopírujte text ručne</span>
+      <span class="no-email-hint">⚠ Kontakt nemá email</span>
     {% endif %}
   </div>
   <form method="POST" id="template-form"
