@@ -191,8 +191,8 @@ def send_mail(to, subject, body):
                 recipients = [to] if isinstance(to, str) else to
                 msg = Message(subject, recipients=recipients, body=body)
                 mail.send(msg)
-        except Exception:
-            pass
+        except Exception as e:
+            app.logger.error(f"send_mail failed: {e}")
     threading.Thread(target=_send, daemon=True).start()
 
 
