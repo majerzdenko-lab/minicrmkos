@@ -49,12 +49,20 @@
   </div>
 </div>
 
+{# ── Bulk action bar ──────────────────────────────────────────────────── #}
+<div id="bulk-bar" style="display:none;background:var(--primary);color:#fff;padding:0.6rem 1rem;border-radius:8px;margin-bottom:0.75rem;display:none;align-items:center;gap:1rem;flex-wrap:wrap">
+  <span id="bulk-count" style="font-size:0.9rem;font-weight:600"></span>
+  <button onclick="sendBulkEmail()" class="btn btn-primary btn-sm" style="background:#fff;color:var(--primary);border:none">✉ Poslať email</button>
+  <button onclick="clearSelection()" class="btn btn-secondary btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4)">Zrušiť výber</button>
+</div>
+
 {# ── Desktop table ────────────────────────────────────────────────────── #}
 <div class="contacts-table-wrap">
   {% if contacts %}
     <table class="contacts-table">
       <thead>
         <tr>
+          <th style="width:2rem"><input type="checkbox" id="check-all" title="Vybrať všetky"></th>
           <th>Meno</th>
           <th>Kontakt</th>
           <th>Zdroj / Kurz</th>
@@ -69,6 +77,7 @@
           {% set slug = c.status | slug %}
           {% set idx = status_order.index(c.status) if c.status in status_order else -1 %}
           <tr class="{{ 'stale-row' if is_stale else '' }}">
+            <td><input type="checkbox" class="row-check" value="{{ c.id }}"></td>
             <td>
               {% if is_stale %}<span class="stale-dot" title="Viac ako 4 dni v rovnakom stave">&#9679;</span> {% endif %}
               <a href="{{ url_for('contact_detail', id=c.id) }}" class="contact-link">{{ c.name }}</a>
@@ -82,6 +91,20 @@
               <div>{{ c.source or '—' }}</div>
               {% if c.course_ref %}
                 <div class="contact-sub">{{ c.course_ref }}</div>
+              {% elif sessions %}
+                <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}" style="margin-top:0.2rem">
+                  {% if sessions|length == 1 %}
+                    <input type="hidden" name="session_id" value="{{ sessions[0].id }}">
+                    <button type="submit" class="btn btn-secondary btn-sm">+ {{ sessions[0].name }}{% if sessions[0].date %} ({{ sessions[0].date | fmt_date }}){% endif %}</button>
+                  {% else %}
+                    <select name="session_id" class="form-control" style="font-size:0.78rem;min-height:32px;padding:0.2rem 0.5rem;margin-bottom:0.25rem">
+                      {% for s in sessions %}
+                        <option value="{{ s.id }}">{{ s.name }}{% if s.date %} · {{ s.date | fmt_date }}{% endif %}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-secondary btn-sm">Priradiť</button>
+                  {% endif %}
+                </form>
               {% elif course and course.name %}
                 <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}">
                   <button type="submit" class="btn btn-secondary btn-sm" style="margin-top:0.2rem">+ Priradiť kurz</button>
@@ -90,7 +113,6 @@
             </td>
             <td>
               <div class="status-controls">
-                {# Back button #}
                 {% if idx > 0 %}
                   <form method="POST" action="{{ url_for('contact_regress', id=c.id) }}" style="display:inline">
                     <button type="submit" class="btn-step btn-step-back" title="Vrátiť na predošlý stav">‹</button>
@@ -98,11 +120,7 @@
                 {% else %}
                   <span class="btn-step-placeholder"></span>
                 {% endif %}
-
-                {# Status badge #}
                 <span class="badge badge-{{ slug }}">{{ c.status }}</span>
-
-                {# Advance button #}
                 {% if idx >= 0 and idx < status_order|length - 1 %}
                   <form method="POST" action="{{ url_for('contact_advance', id=c.id) }}" style="display:inline">
                     <button type="submit" class="btn-step btn-step-fwd" title="Posunúť na ďalší stav">›</button>
@@ -138,10 +156,13 @@
       {% set idx = status_order.index(c.status) if c.status in status_order else -1 %}
       <div class="contact-card {{ 'stale-row' if is_stale else '' }}">
         <div class="contact-card-top">
-          <div class="contact-card-name">
-            {% if is_stale %}<span class="stale-dot">&#9679;</span> {% endif %}
-            <a href="{{ url_for('contact_detail', id=c.id) }}">{{ c.name }}</a>
-            <span class="days-badge {% if is_stale %}days-stale{% endif %}"> · {{ days_map[c.id] }}d</span>
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <input type="checkbox" class="row-check-mobile" value="{{ c.id }}" style="width:16px;height:16px;flex-shrink:0">
+            <div class="contact-card-name">
+              {% if is_stale %}<span class="stale-dot">&#9679;</span> {% endif %}
+              <a href="{{ url_for('contact_detail', id=c.id) }}">{{ c.name }}</a>
+              <span class="days-badge {% if is_stale %}days-stale{% endif %}"> · {{ days_map[c.id] }}d</span>
+            </div>
           </div>
           <span class="badge badge-{{ slug }}">{{ c.status }}</span>
         </div>
@@ -152,6 +173,25 @@
           {% if c.source %} · {{ c.source }}{% endif %}
           {% if c.course_ref %}<br><span style="color:var(--accent)">📅 {{ c.course_ref }}</span>{% endif %}
         </div>
+        {% if not c.course_ref and sessions %}
+          <div style="margin:0.4rem 0">
+            <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}">
+              {% if sessions|length == 1 %}
+                <input type="hidden" name="session_id" value="{{ sessions[0].id }}">
+                <button type="submit" class="btn btn-secondary btn-sm">+ Priradiť termín</button>
+              {% else %}
+                <div style="display:flex;gap:0.4rem;align-items:center">
+                  <select name="session_id" class="form-control" style="font-size:0.78rem;min-height:34px;padding:0.2rem 0.5rem">
+                    {% for s in sessions %}
+                      <option value="{{ s.id }}">{{ s.name }}{% if s.date %} · {{ s.date | fmt_date }}{% endif %}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-secondary btn-sm">OK</button>
+                </div>
+              {% endif %}
+            </form>
+          </div>
+        {% endif %}
         <div class="contact-card-footer">
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
             {% if idx > 0 %}
@@ -162,11 +202,6 @@
             {% if idx >= 0 and idx < status_order|length - 1 %}
               <form method="POST" action="{{ url_for('contact_advance', id=c.id) }}">
                 <button type="submit" class="btn btn-primary btn-sm">Ďalej →</button>
-              </form>
-            {% endif %}
-            {% if course and course.name and not c.course_ref %}
-              <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}">
-                <button type="submit" class="btn btn-secondary btn-sm">+ Kurz</button>
               </form>
             {% endif %}
           </div>
@@ -180,5 +215,49 @@
     </div>
   {% endif %}
 </div>
+
+<script>
+const bulkBar   = document.getElementById('bulk-bar');
+const bulkCount = document.getElementById('bulk-count');
+const checkAll  = document.getElementById('check-all');
+
+function getChecked() {
+  return [...document.querySelectorAll('.row-check:checked, .row-check-mobile:checked')]
+    .map(el => el.value);
+}
+
+function updateBar() {
+  const ids = getChecked();
+  if (ids.length > 0) {
+    bulkBar.style.display = 'flex';
+    bulkCount.textContent = ids.length + ' ' + (ids.length === 1 ? 'vybraný' : ids.length < 5 ? 'vybraní' : 'vybraných');
+  } else {
+    bulkBar.style.display = 'none';
+  }
+}
+
+function sendBulkEmail() {
+  const ids = getChecked();
+  if (ids.length === 0) return;
+  window.location = '{{ url_for("bulk_email_form") }}?ids=' + ids.join(',');
+}
+
+function clearSelection() {
+  document.querySelectorAll('.row-check, .row-check-mobile').forEach(el => el.checked = false);
+  if (checkAll) checkAll.checked = false;
+  updateBar();
+}
+
+document.querySelectorAll('.row-check, .row-check-mobile').forEach(el => {
+  el.addEventListener('change', updateBar);
+});
+
+if (checkAll) {
+  checkAll.addEventListener('change', function() {
+    document.querySelectorAll('.row-check').forEach(el => el.checked = this.checked);
+    updateBar();
+  });
+}
+</script>
 
 {% endblock %}

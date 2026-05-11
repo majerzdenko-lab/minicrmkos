@@ -226,6 +226,7 @@ def index():
     }
     counts = {s: Contact.query.filter_by(status=s).count() for s in STATUS_ORDER}
     total = sum(counts.values())
+    sessions = CourseSession.query.filter_by(is_active=True).order_by(CourseSession.date).all()
     return render_template(
         "index.html",
         contacts=contacts,
@@ -234,6 +235,7 @@ def index():
         status_filter=status_filter,
         counts=counts,
         total=total,
+        sessions=sessions,
     )
 
 
@@ -308,6 +310,15 @@ def contact_send_email(id):
 @login_required
 def contact_assign_course(id):
     contact = Contact.query.get_or_404(id)
+    session_id = request.form.get("session_id", "").strip()
+    if session_id and session_id.isdigit():
+        sess = CourseSession.query.get(int(session_id))
+        if sess:
+            contact.session_id = sess.id
+            contact.course_ref = course_label(sess)
+            db.session.commit()
+            flash(f"Priradené ku termínu: {contact.course_ref}", "success")
+            return redirect(request.referrer or url_for("index"))
     course = Course.query.first()
     label = course_label(course)
     if not label:
@@ -316,7 +327,7 @@ def contact_assign_course(id):
         contact.course_ref = label
         db.session.commit()
         flash(f"Priradené ku kurzu: {label}", "success")
-    return redirect(url_for("contact_detail", id=id))
+    return redirect(request.referrer or url_for("index"))
 
 
 @app.route("/contact/<int:id>", methods=["GET", "POST"])
@@ -621,6 +632,48 @@ def prihlasenie_legacy():
     if sessions:
         return redirect(url_for("prihlasenie", session_id=sessions[0].id))
     return render_template("prihlasenie.html", sess=None, is_open=False)
+
+
+# ── Bulk email ─────────────────────────────────────────────────────────────────
+
+@app.route("/bulk-email", methods=["GET"])
+@login_required
+def bulk_email_form():
+    ids = [int(i) for i in request.args.get("ids", "").split(",") if i.strip().isdigit()]
+    if not ids:
+        flash("Nevybratí žiadni kontakti.", "error")
+        return redirect(url_for("index"))
+    contacts = Contact.query.filter(Contact.id.in_(ids)).all()
+    templates = EmailTemplate.query.all()
+    return render_template("bulk_email.html", contacts=contacts, templates=templates)
+
+
+@app.route("/bulk-email", methods=["POST"])
+@login_required
+def bulk_email_send():
+    ids = [int(i) for i in request.form.get("ids", "").split(",") if i.strip().isdigit()]
+    subject_tpl = request.form.get("subject", "").strip()
+    body_tpl = request.form.get("body", "").strip()
+    if not subject_tpl or not body_tpl:
+        flash("Vyplňte predmet aj text emailu.", "error")
+        return redirect(url_for("bulk_email_form", ids=",".join(str(i) for i in ids)))
+    contacts = Contact.query.filter(Contact.id.in_(ids)).all()
+    sent, skipped = 0, 0
+    for c in contacts:
+        if not c.email:
+            skipped += 1
+            continue
+        send_mail(
+            c.email,
+            subject_tpl.replace("{meno}", c.name),
+            body_tpl.replace("{meno}", c.name),
+        )
+        sent += 1
+    parts = [f"Email odoslaný {sent} kontaktom."]
+    if skipped:
+        parts.append(f"{skipped} preskočených (bez emailu).")
+    flash(" ".join(parts), "success")
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":

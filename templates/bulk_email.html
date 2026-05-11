@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Hromadný email{% endblock %}
+
+{% block content %}
+
+<div class="detail-header">
+  <div>
+    <div class="detail-title">Hromadný email</div>
+    <div style="margin-top:0.3rem;font-size:0.85rem;color:var(--text-muted)">
+      {{ contacts|length }} kontakt{{ 'y' if contacts|length in [2,3,4] else ('ov' if contacts|length != 1 else '') }}
+    </div>
+  </div>
+  <div class="detail-actions">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">← Späť</a>
+  </div>
+</div>
+
+{# ── Príjemcovia ──────────────────────────────────────────────────────── #}
+<div class="card" style="margin-bottom:1rem">
+  <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.6rem">Príjemcovia</div>
+  <div style="display:flex;flex-wrap:wrap;gap:0.4rem">
+    {% for c in contacts %}
+      <span style="background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:0.2rem 0.7rem;font-size:0.82rem">
+        {{ c.name }}{% if c.email %} <span style="color:var(--text-muted)">· {{ c.email }}</span>{% else %} <span style="color:#c0392b">· bez emailu</span>{% endif %}
+      </span>
+    {% endfor %}
+  </div>
+  {% set no_email = contacts | rejectattr('email') | list %}
+  {% if no_email %}
+    <div style="margin-top:0.6rem;font-size:0.8rem;color:#c0392b">
+      ⚠ {{ no_email|length }} kontakt{{ 'y' if no_email|length in [2,3,4] else 'ov' if no_email|length != 1 else '' }} nemá email — bud{{ 'ú' if no_email|length != 1 else 'e' }} preskočen{{ 'í' if no_email|length != 1 else 'ý' }}.
+    </div>
+  {% endif %}
+</div>
+
+{# ── Šablóna (voliteľné) ──────────────────────────────────────────────── #}
+{% if templates %}
+<div class="card" style="margin-bottom:1rem">
+  <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.6rem">Použiť existujúcu šablónu</div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+    {% for t in templates %}
+      {% if t.subject or t.body %}
+        <button type="button" class="btn btn-secondary btn-sm"
+                onclick="fillTemplate({{ t.subject | tojson }}, {{ t.body | tojson }})">
+          {{ t.status }}
+        </button>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# ── Formulár ─────────────────────────────────────────────────────────── #}
+<div class="card">
+  <form method="POST" action="{{ url_for('bulk_email_send') }}">
+    <input type="hidden" name="ids" value="{{ contacts | map(attribute='id') | join(',') }}">
+
+    <div class="form-group">
+      <label class="form-label">Predmet</label>
+      <input type="text" id="subject" name="subject" class="form-control"
+             placeholder="napr. Nový termín kurzu kosenia" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">
+        Text emailu
+        <span style="font-weight:400;text-transform:none;color:var(--text-muted)">
+          — <code style="background:var(--bg);padding:0.05rem 0.3rem;border-radius:3px">{meno}</code> → meno príjemcu
+        </span>
+      </label>
+      <textarea id="body" name="body" class="form-control" rows="8"
+                placeholder="Dobrý deň {meno},&#10;&#10;..." required></textarea>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-top:0.5rem">
+      <button type="submit" class="btn btn-primary"
+              onclick="return confirm('Odoslať email {{ contacts|length }} kontaktom?')">
+        ✉ Odoslať email
+      </button>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Zrušiť</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function fillTemplate(subject, body) {
+  document.getElementById('subject').value = subject;
+  document.getElementById('body').value = body;
+}
+</script>
+
+{% endblock %}
