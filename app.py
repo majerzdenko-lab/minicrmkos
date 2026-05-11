@@ -373,7 +373,16 @@ def contact_detail(id):
             contact.status = new_status
             contact.status_changed_at = datetime.utcnow()
         contact.note = request.form.get("note", "")
-        contact.course_ref = request.form.get("course_ref", "").strip()
+        new_session_id_str = request.form.get("session_id", "").strip()
+        if new_session_id_str.isdigit() and int(new_session_id_str) > 0:
+            sess = CourseSession.query.get(int(new_session_id_str))
+            if sess:
+                contact.session_id = sess.id
+                contact.course_ref = course_label(sess)
+        else:
+            contact.course_ref = request.form.get("course_ref", "").strip()
+            if not new_session_id_str:
+                contact.session_id = None
         db.session.commit()
         if status_changed and new_status == "zrušil" and contact.session_id:
             if notify_waiting_list(contact.session_id):
@@ -386,11 +395,13 @@ def contact_detail(id):
         t.status: {"subject": t.subject or "", "body": t.body or ""}
         for t in EmailTemplate.query.all()
     }
+    sessions = CourseSession.query.order_by(CourseSession.date).all()
     return render_template(
         "contact.html",
         contact=contact,
         email_template=email_template,
         all_templates=all_templates,
+        sessions=sessions,
     )
 
 
