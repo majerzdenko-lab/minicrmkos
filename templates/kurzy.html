@@ -18,86 +18,84 @@
     .session-card {
       display: block;
       background: #fff;
-      border: 1.5px solid #e0ddd5;
-      border-left: 4px solid #3a6b2e;
-      border-radius: 10px;
-      padding: 1.1rem 1.25rem 1rem;
-      margin-bottom: 0.75rem;
+      border: 1.5px solid #ddd8ce;
+      border-radius: 12px;
+      margin-bottom: 1rem;
       text-decoration: none;
       color: inherit;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
-      transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      transition: box-shadow 0.18s, transform 0.15s;
     }
     .session-card:hover {
-      box-shadow: 0 4px 18px rgba(42,78,32,0.13);
-      border-left-color: #2a4e20;
-      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(42,78,32,0.15);
+      transform: translateY(-2px);
     }
     .session-card.session-full {
-      border-left-color: #c8b8a2;
-      opacity: 0.75;
+      opacity: 0.6;
       pointer-events: none;
     }
-    .session-card-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
+    .session-card-top {
+      background: #2a4e20;
+      padding: 0.8rem 1.25rem 0.75rem;
     }
-    .session-info { flex: 1; min-width: 0; }
     .session-name {
       font-weight: 800;
-      font-size: 1.02rem;
-      color: #2a4e20;
-      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+      color: #fff;
       line-height: 1.3;
+    }
+    .session-card-body {
+      padding: 1rem 1.25rem 1.15rem;
+    }
+    .session-date-row {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1e1b14;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.01em;
     }
     .session-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.9rem;
-      font-size: 0.88rem;
-      color: #5a5040;
+      gap: 0.7rem;
+      font-size: 0.85rem;
+      color: #6a5e4e;
       font-weight: 600;
-      margin-bottom: 0.55rem;
+      margin-bottom: 0.9rem;
     }
-    .session-meta span { display: flex; align-items: center; gap: 0.3rem; }
-
     .spots {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      padding: 0.2rem 0.65rem;
+      padding: 0.22rem 0.7rem;
       border-radius: 20px;
+      margin-bottom: 0.9rem;
     }
     .spots-ok   { background: #e0eed8; color: #1e4a14; }
     .spots-low  { background: #fef3d0; color: #7a5200; }
     .spots-full { background: #f0ece3; color: #9a8870; }
 
     .btn-reg {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
-      min-width: 130px;
-      padding: 0.5rem 1.4rem;
+      width: 100%;
+      min-height: 50px;
       background: #3a6b2e;
       color: #fff;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 700;
       font-family: 'Nunito', sans-serif;
       text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
+      letter-spacing: 0.01em;
+      transition: background 0.15s;
     }
+    .btn-reg:hover { background: #2a4e20; }
     .btn-reg-full {
       background: #e8e4dc;
       color: #9a8870;
-    }
-    @media (max-width: 480px) {
-      .session-card-inner { flex-direction: column; align-items: flex-start; }
-      .btn-reg { width: 100%; justify-content: center; }
     }
 
     /* ── Notify form ── */
@@ -181,28 +179,30 @@
     {% else %}
       <a href="{{ url_for('prihlasenie', session_id=s.id) }}" class="session-card" target="_blank">
     {% endif %}
-      <div class="session-card-inner">
-        <div class="session-info">
-          <div class="session-name">{{ s.name }}</div>
-          <div class="session-meta">
-            {% if s.date %}<span>📅 {{ s.date | fmt_date }}</span>{% endif %}
-            {% if s.time %}<span>🕐 {{ s.time | fmt_time }}</span>{% endif %}
-            {% if s.location %}<span>📍 {{ s.location }}</span>{% endif %}
-          </div>
-          {% if left is not none %}
-            {% if left == 0 %}
-              <span class="spots spots-full">Obsadený</span>
-            {% elif left <= 3 %}
-              <span class="spots spots-low">⚡ Posledné {{ left }} miesta</span>
-            {% else %}
-              <span class="spots spots-ok">✓ {{ left }} voľných miest</span>
-            {% endif %}
-          {% endif %}
+      <div class="session-card-top">
+        <div class="session-name">{{ s.name }}</div>
+      </div>
+      <div class="session-card-body">
+        {% if s.date %}
+          <div class="session-date-row">📅 {{ s.date | fmt_date }}</div>
+        {% endif %}
+        <div class="session-meta">
+          {% if s.time %}<span>🕐 {{ s.time | fmt_time }}</span>{% endif %}
+          {% if s.location %}<span>📍 {{ s.location }}</span>{% endif %}
         </div>
+        {% if left is not none %}
+          {% if left == 0 %}
+            <div><span class="spots spots-full">Termín obsadený</span></div>
+          {% elif left <= 3 %}
+            <div><span class="spots spots-low">⚡ Posledné {{ left }} miesta</span></div>
+          {% else %}
+            <div><span class="spots spots-ok">✓ {{ left }} voľných miest</span></div>
+          {% endif %}
+        {% endif %}
         {% if left == 0 %}
-          <span class="btn-reg btn-reg-full">Obsadený</span>
+          <div class="btn-reg btn-reg-full">Obsadený</div>
         {% else %}
-          <span class="btn-reg">Prihlásiť sa →</span>
+          <div class="btn-reg">Prihlásiť sa na kurz →</div>
         {% endif %}
       </div>
     {% if left == 0 %}
