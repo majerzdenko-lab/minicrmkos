@@ -104,7 +104,7 @@
       <div class="form-group">
         <label class="form-label">Kurz / Termín</label>
         {% if sessions %}
-          <select name="session_id" id="session-select" class="form-control" style="margin-bottom:0.4rem">
+          <select name="session_id" id="session-select" class="form-control">
             <option value="">— ručný zápis —</option>
             {% for s in sessions %}
               <option value="{{ s.id }}"
@@ -117,7 +117,8 @@
         {% endif %}
         <input type="text" name="course_ref" id="course-ref-input" class="form-control"
                value="{{ contact.course_ref or '' }}"
-               placeholder="napr. Kurz kosenia · 15. 6. 2026">
+               placeholder="napr. Kurz kosenia · 15. 6. 2026"
+               style="margin-top:0.4rem;display:{% if not contact.session_id %}block{% else %}none{% endif %}">
       </div>
     </div>
 
@@ -184,6 +185,9 @@ if (sessionSelect) {
   sessionSelect.addEventListener('change', function() {
     if (this.value && SESSION_LABELS[this.value]) {
       courseRefInput.value = SESSION_LABELS[this.value];
+      courseRefInput.style.display = 'none';
+    } else {
+      courseRefInput.style.display = 'block';
     }
   });
 }
