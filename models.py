@@ -28,6 +28,7 @@ class Contact(db.Model):
     status_changed_at = db.Column(db.DateTime, default=datetime.utcnow)
     course_ref = db.Column(db.String(200))
     height = db.Column(db.String(20))
+    reminder_sent = db.Column(db.Boolean, default=False)
     session_id = db.Column(db.Integer, db.ForeignKey("course_session.id"), nullable=True)
     session = db.relationship("CourseSession", backref="contacts", foreign_keys=[session_id])
 
@@ -74,6 +75,17 @@ class CourseSession(db.Model):
         if self.capacity is None:
             return None
         return max(0, self.capacity - self.registered_count)
+
+
+class WaitingList(db.Model):
+    __tablename__ = "waiting_list"
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey("course_session.id"), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200))
+    phone = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    session = db.relationship("CourseSession", backref="waiting_list")
 
 
 class EmailTemplate(db.Model):

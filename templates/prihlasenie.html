@@ -237,19 +237,36 @@
     {% endif %}
 
     {% if sess.spots_left == 0 %}
-      <div class="closed-box">
-        <strong>Tento termín je obsadený.</strong>
-        <p style="font-size:0.85rem">Skúste iný termín alebo nás kontaktujte.</p>
-        <a href="{{ url_for('kurzy_widget') }}"
-           style="display:inline-block;margin-top:1rem;color:#3a6b2e;font-size:0.85rem">
-          ← Iné termíny
-        </a>
+      <div class="form-card">
+        <h3 style="color:#7a1e1e">Termín je obsadený</h3>
+        <p style="font-size:0.88rem;color:#7a6e5e;margin-bottom:1rem">
+          Zapíšte sa na čakaciu listinu — ozveme sa Vám ak sa uvoľní miesto.
+        </p>
+        <form method="POST" action="{{ url_for('prihlasenie_waiting', session_id=sess.id) }}">
+          <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
+          <div class="form-group">
+            <label class="form-label">Meno a priezvisko *</label>
+            <input type="text" name="name" class="form-control" placeholder="Ján Novák" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-mail</label>
+            <input type="email" name="email" class="form-control" placeholder="vas@email.sk" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefón</label>
+            <input type="tel" name="phone" class="form-control" placeholder="+421 9xx xxx xxx" autocomplete="tel">
+          </div>
+          <p style="font-size:0.74rem;color:#9a8870;margin-bottom:0.75rem">* Zadajte aspoň e-mail alebo telefón.</p>
+          <button type="submit" class="btn-submit" style="background:#7a5200">Zapísať sa na čakaciu listinu →</button>
+        </form>
       </div>
+      <a href="{{ url_for('kurzy_widget') }}" class="back-link">← Iné termíny</a>
 
     {% else %}
       <div class="form-card">
         <h3>Vaše údaje</h3>
         <form method="POST" action="{{ url_for('prihlasenie', session_id=sess.id) }}">
+          <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Meno *</label>

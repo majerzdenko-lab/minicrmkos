@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ sess.name }}{% endblock %}
+
+{% block content %}
+
+<style>
+@media print {
+  .site-header, .detail-actions, .no-print { display: none !important; }
+  body { font-size: 12px; }
+  .print-title { font-size: 18px; font-weight: bold; margin-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+  th { background: #f0f0f0; }
+}
+</style>
+
+<div class="detail-header no-print">
+  <div>
+    <div class="detail-title">{{ sess.name }}</div>
+    <div style="margin-top:0.3rem;font-size:0.85rem;color:var(--text-muted)">
+      {% if sess.date %}{{ sess.date | fmt_date }}{% endif %}
+      {% if sess.time %} · {{ sess.time | fmt_time }}{% endif %}
+      {% if sess.location %} · {{ sess.location }}{% endif %}
+    </div>
+  </div>
+  <div class="detail-actions">
+    <button onclick="window.print()" class="btn btn-secondary">🖨 Vytlačiť</button>
+    <a href="{{ url_for('settings') }}" class="btn btn-secondary">← Späť</a>
+  </div>
+</div>
+
+{# ── Kapacita ─────────────────────────────────────────────────────────── #}
+{% set pct = (contacts|length / sess.capacity * 100) if sess.capacity else 0 %}
+{% set cap_color = '#b52a2a' if pct >= 100 else ('#b8882a' if pct >= 70 else '#3a6b2e') %}
+<div class="card no-print" style="margin-bottom:1rem">
+  <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+    <div>
+      <div style="font-size:2rem;font-weight:800;color:{{ cap_color }};line-height:1">
+        {{ contacts|length }}<span style="font-size:1rem;color:var(--text-muted)">/{{ sess.capacity }}</span>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.1rem">prihlásených</div>
+    </div>
+    <div style="flex:1;min-width:150px">
+      <div style="height:10px;background:var(--border);border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:{{ [pct,100]|min }}%;background:{{ cap_color }};border-radius:5px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem">
+        <span>{{ sess.spots_left }} voľných miest</span>
+        {% if sess.waiting_list %}<span>{{ sess.waiting_list|length }} na čakacej listine</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── Print header ─────────────────────────────────────────────────────── #}
+<div class="print-title" style="display:none">
+  {{ sess.name }}
+  {% if sess.date %} — {{ sess.date | fmt_date }}{% endif %}
+  {% if sess.time %} {{ sess.time | fmt_time }}{% endif %}
+  {% if sess.location %} · {{ sess.location }}{% endif %}
+</div>
+
+{# ── Zoznam účastníkov ────────────────────────────────────────────────── #}
+<div class="card" style="margin-bottom:1rem">
+  <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.75rem">
+    Účastníci ({{ contacts|length }})
+  </div>
+
+  {% if contacts %}
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">#</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Meno</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Email</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Telefón</th>
+            <th style="text-align:center;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Výška (cm)</th>
+            <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted) no-print">Stav</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in contacts %}
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:0.6rem 0.75rem;color:var(--text-muted)">{{ loop.index }}</td>
+              <td style="padding:0.6rem 0.75rem;font-weight:600">
+                <a href="{{ url_for('contact_detail', id=c.id) }}" class="contact-link no-print">{{ c.name }}</a>
+                <span style="display:none" class="print-name">{{ c.name }}</span>
+              </td>
+              <td style="padding:0.6rem 0.75rem;color:var(--text-muted)">{{ c.email or '—' }}</td>
+              <td style="padding:0.6rem 0.75rem">{{ c.phone or '—' }}</td>
+              <td style="padding:0.6rem 0.75rem;text-align:center;font-weight:{% if c.height %}600{% else %}400{% endif %}">
+                {{ c.height or '—' }}
+              </td>
+              <td style="padding:0.6rem 0.75rem" class="no-print">
+                <span class="badge badge-{{ c.status | slug }}">{{ c.status }}</span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color:var(--text-muted);font-size:0.88rem">Žiadni prihlásení účastníci.</p>
+  {% endif %}
+</div>
+
+{# ── Čakacia listina ──────────────────────────────────────────────────── #}
+{% if waiting %}
+  <div class="card no-print">
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.75rem">
+      Čakacia listina ({{ waiting|length }})
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:0.4rem 0.75rem;font-size:0.72rem;text-transform:uppercase;color:var(--text-muted)">#</th>
+            <th style="text-align:left;padding:0.4rem 0.75rem;font-size:0.72rem;text-transform:uppercase;color:var(--text-muted)">Meno</th>
+            <th style="text-align:left;padding:0.4rem 0.75rem;font-size:0.72rem;text-transform:uppercase;color:var(--text-muted)">Email</th>
+            <th style="text-align:left;padding:0.4rem 0.75rem;font-size:0.72rem;text-transform:uppercase;color:var(--text-muted)">Telefón</th>
+            <th style="text-align:left;padding:0.4rem 0.75rem;font-size:0.72rem;text-transform:uppercase;color:var(--text-muted)">Dátum zápisu</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for w in waiting %}
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:0.5rem 0.75rem;color:var(--text-muted)">{{ loop.index }}</td>
+              <td style="padding:0.5rem 0.75rem;font-weight:600">{{ w.name }}</td>
+              <td style="padding:0.5rem 0.75rem;color:var(--text-muted)">{{ w.email or '—' }}</td>
+              <td style="padding:0.5rem 0.75rem">{{ w.phone or '—' }}</td>
+              <td style="padding:0.5rem 0.75rem;color:var(--text-muted);font-size:0.8rem">
+                {{ w.created_at.strftime('%-d. %-m. %Y %H:%M') if w.created_at else '—' }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+
+<script>
+// Show print-only elements during print
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('.print-name').forEach(el => el.style.display = 'inline');
+  document.querySelectorAll('.no-print a.contact-link').forEach(el => el.style.display = 'none');
+  document.querySelector('.print-title').style.display = 'block';
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('.print-name').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.no-print a.contact-link').forEach(el => el.style.display = 'inline');
+  document.querySelector('.print-title').style.display = 'none';
+});
+</script>
+
+{% endblock %}

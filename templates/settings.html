@@ -15,22 +15,38 @@
   {% if sessions %}
     <div style="margin-bottom:1rem">
       {% for s in sessions %}
+        {# Capacity color #}
+        {% set pct = (s.registered_count / s.capacity * 100) if s.capacity else 0 %}
+        {% set cap_color = '#b52a2a' if pct >= 100 else ('#b8882a' if pct >= 70 else '#3a6b2e') %}
+
         <div class="session-row {% if not s.is_active %}session-inactive{% endif %}">
-          <div class="session-info">
+          <div class="session-info" style="flex:1">
             <span class="session-name">{{ s.name }}</span>
             <span class="session-meta">
               {% if s.date %}{{ s.date | fmt_date }}{% endif %}
               {% if s.time %} · {{ s.time | fmt_time }}{% endif %}
               {% if s.location %} · {{ s.location }}{% endif %}
-              · {{ s.registered_count }}/{{ s.capacity }} prihlásených
             </span>
+            {# Capacity bar #}
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem">
+              <div style="width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:{{ [pct,100]|min }}%;background:{{ cap_color }};border-radius:3px;transition:width 0.3s"></div>
+              </div>
+              <span style="font-size:0.78rem;color:{{ cap_color }};font-weight:600">
+                {{ s.registered_count }}/{{ s.capacity }}
+                {% if s.waiting_list %}<span style="color:var(--text-muted);font-weight:400"> · {{ s.waiting_list|length }} čakajú</span>{% endif %}
+              </span>
+            </div>
           </div>
-          <div class="session-actions">
+          <div class="session-actions" style="flex-wrap:wrap;gap:0.3rem">
             {% if s.is_active %}
               <span class="session-badge-active">aktívny</span>
             {% else %}
               <span class="session-badge-inactive">skrytý</span>
             {% endif %}
+            <a href="{{ url_for('session_detail', id=s.id) }}" class="btn btn-secondary btn-sm">Účastníci</a>
+            <button type="button" class="btn btn-secondary btn-sm"
+                    onclick="toggleEdit({{ s.id }})">Upraviť</button>
             <form method="POST" action="{{ url_for('session_toggle', id=s.id) }}" style="display:inline">
               <button type="submit" class="btn btn-secondary btn-sm">
                 {{ 'Skryť' if s.is_active else 'Zobraziť' }}
@@ -41,6 +57,42 @@
               <button type="submit" class="btn btn-danger btn-sm">Zmazať</button>
             </form>
           </div>
+        </div>
+
+        {# Inline edit form (hidden by default) #}
+        <div id="edit-{{ s.id }}" style="display:none;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:-0.5rem 0 0.75rem">
+          <form method="POST" action="{{ url_for('session_edit', id=s.id) }}">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Názov</label>
+                <input type="text" name="name" class="form-control" value="{{ s.name }}" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Miesto</label>
+                <input type="text" name="location" class="form-control" value="{{ s.location or '' }}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Dátum</label>
+                <input type="date" name="date" class="form-control"
+                       value="{{ s.date.isoformat() if s.date else '' }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Čas</label>
+                <input type="time" name="time" class="form-control"
+                       value="{{ s.time.strftime('%H:%M') if s.time else '' }}">
+              </div>
+            </div>
+            <div class="form-group" style="max-width:180px">
+              <label class="form-label">Kapacita</label>
+              <input type="number" name="capacity" class="form-control" min="1" value="{{ s.capacity }}">
+            </div>
+            <div style="display:flex;gap:0.5rem">
+              <button type="submit" class="btn btn-primary btn-sm">Uložiť</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEdit({{ s.id }})">Zrušiť</button>
+            </div>
+          </form>
         </div>
       {% endfor %}
     </div>
@@ -187,5 +239,12 @@
     </div>
   {% endfor %}
 </div>
+
+<script>
+function toggleEdit(id) {
+  const el = document.getElementById('edit-' + id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
 
 {% endblock %}

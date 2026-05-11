@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import resend
-from models import db, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, STATUS_ORDER, SOURCES
+from models import db, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, WaitingList, STATUS_ORDER, SOURCES
 
 app = Flask(__name__)
 
@@ -150,6 +150,7 @@ def run_migrations():
             "ALTER TABLE contact ADD COLUMN course_ref VARCHAR(200)",
             "ALTER TABLE contact ADD COLUMN height VARCHAR(20)",
             "ALTER TABLE contact ADD COLUMN session_id INTEGER REFERENCES course_session(id)",
+            "ALTER TABLE contact ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE",
         ]:
             try:
                 conn.execute(db.text(sql))
@@ -192,6 +193,26 @@ def send_mail(to, subject, body):
         except Exception as e:
             app.logger.error(f"send_mail failed: {e}")
     threading.Thread(target=_send, daemon=True).start()
+
+
+def notify_waiting_list(session_id):
+    """Notify first person on waiting list that a spot opened. Returns True if notified."""
+    first = WaitingList.query.filter_by(session_id=session_id).order_by(WaitingList.created_at).first()
+    if not first:
+        return False
+    if first.email:
+        sess = CourseSession.query.get(session_id)
+        sess_label = course_label(sess) if sess else "kurz"
+        base_url = os.environ.get("APP_URL", "")
+        reg_link = f"{base_url}/prihlasenie/{session_id}" if base_url else f"/prihlasenie/{session_id}"
+        send_mail(
+            first.email,
+            f"Uvoľnilo sa miesto — {sess_label}",
+            f"Dobrý deň {first.name},\n\nuvoľnilo sa miesto na kurze: {sess_label}.\n\nPrihlásenie: {reg_link}\n\nS pozdravom\nVerselý Kosec"
+        )
+    db.session.delete(first)
+    db.session.commit()
+    return True
 
 
 def course_label(obj):
@@ -272,6 +293,9 @@ def contact_advance(id):
             contact.status = STATUS_ORDER[idx + 1]
             contact.status_changed_at = datetime.utcnow()
             db.session.commit()
+            if contact.status == "zrušil" and contact.session_id:
+                if notify_waiting_list(contact.session_id):
+                    flash("Miesto uvoľnené — prvý na čakacej listine bol notifikovaný.", "success")
     return redirect(request.referrer or url_for("index"))
 
 
@@ -344,12 +368,16 @@ def contact_detail(id):
         contact.email = request.form.get("email", "").strip()
         contact.source = request.form.get("source", contact.source)
         new_status = request.form.get("status", contact.status)
-        if new_status != contact.status:
+        status_changed = new_status != contact.status
+        if status_changed:
             contact.status = new_status
             contact.status_changed_at = datetime.utcnow()
         contact.note = request.form.get("note", "")
         contact.course_ref = request.form.get("course_ref", "").strip()
         db.session.commit()
+        if status_changed and new_status == "zrušil" and contact.session_id:
+            if notify_waiting_list(contact.session_id):
+                flash("Miesto uvoľnené — prvý na čakacej listine bol notifikovaný.", "success")
         flash("Kontakt uložený.", "success")
         return redirect(url_for("contact_detail", id=id))
 
@@ -524,6 +552,44 @@ def session_delete(id):
     return redirect(url_for("settings"))
 
 
+@app.route("/settings/sessions/<int:id>/edit", methods=["POST"])
+@login_required
+def session_edit(id):
+    sess = CourseSession.query.get_or_404(id)
+    sess.name = request.form.get("name", "").strip() or sess.name
+    sess.location = request.form.get("location", "").strip()
+    date_str = request.form.get("date", "").strip()
+    time_str = request.form.get("time", "").strip()
+    try:
+        sess.date = date.fromisoformat(date_str) if date_str else None
+    except ValueError:
+        pass
+    try:
+        if time_str:
+            h, m = time_str.split(":")
+            sess.time = dtime(int(h), int(m))
+        else:
+            sess.time = None
+    except (ValueError, TypeError):
+        pass
+    try:
+        sess.capacity = int(request.form.get("capacity", sess.capacity))
+    except ValueError:
+        pass
+    db.session.commit()
+    flash(f"Termín '{sess.name}' aktualizovaný.", "success")
+    return redirect(url_for("settings"))
+
+
+@app.route("/session/<int:id>")
+@login_required
+def session_detail(id):
+    sess = CourseSession.query.get_or_404(id)
+    contacts = Contact.query.filter_by(session_id=id).order_by(Contact.name).all()
+    waiting = WaitingList.query.filter_by(session_id=id).order_by(WaitingList.created_at).all()
+    return render_template("session_detail.html", sess=sess, contacts=contacts, waiting=waiting)
+
+
 # ── Public registration ────────────────────────────────────────────────────────
 
 @app.route("/kurzy")
@@ -622,6 +688,28 @@ def prihlasenie_dakujeme(session_id):
     return render_template("dakujeme.html", sess=sess)
 
 
+@app.route("/prihlasenie/<int:session_id>/waiting", methods=["POST"])
+@limiter.limit("5 per minute; 15 per hour")
+def prihlasenie_waiting(session_id):
+    sess = CourseSession.query.get_or_404(session_id)
+    if request.form.get("website"):  # honeypot
+        return redirect(url_for("prihlasenie_dakujeme", session_id=sess.id))
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip()
+    phone = request.form.get("phone", "").strip()
+    if not name or (not email and not phone):
+        return redirect(url_for("prihlasenie", session_id=session_id))
+    entry = WaitingList(session_id=sess.id, name=name, email=email, phone=phone)
+    db.session.add(entry)
+    db.session.commit()
+    admin = os.environ.get("GMAIL_USER", "")
+    if admin:
+        send_mail(admin,
+            f"Čakacia listina: {name} — {course_label(sess)}",
+            f"Meno: {name}\nEmail: {email or '—'}\nTelefón: {phone or '—'}\nTermín: {course_label(sess)}")
+    return redirect(url_for("prihlasenie_dakujeme", session_id=sess.id))
+
+
 # Legacy route — keep working if someone has the old link
 @app.route("/prihlasenie", methods=["GET"])
 def prihlasenie_legacy():
@@ -632,6 +720,40 @@ def prihlasenie_legacy():
     if sessions:
         return redirect(url_for("prihlasenie", session_id=sessions[0].id))
     return render_template("prihlasenie.html", sess=None, is_open=False)
+
+
+# ── Cron ───────────────────────────────────────────────────────────────────────
+
+@app.route("/cron/send-reminders")
+def cron_send_reminders():
+    token = os.environ.get("CRON_SECRET", "")
+    if not token or request.args.get("token") != token:
+        from flask import abort
+        abort(403)
+    cutoff_from = date.today() + timedelta(days=3)
+    cutoff_to   = date.today() + timedelta(days=4)
+    sessions = CourseSession.query.filter(
+        CourseSession.date >= cutoff_from,
+        CourseSession.date < cutoff_to,
+        CourseSession.is_active == True,
+    ).all()
+    template = EmailTemplate.query.filter_by(status="info ku kurzu odoslané").first()
+    sent = 0
+    for sess in sessions:
+        contacts = Contact.query.filter_by(
+            session_id=sess.id, reminder_sent=False
+        ).filter(Contact.status.in_(["potvrdený", "info ku kurzu odoslané"])).all()
+        for c in contacts:
+            if c.email and template:
+                send_mail(
+                    c.email,
+                    template.subject.replace("{meno}", c.name),
+                    template.body.replace("{meno}", c.name),
+                )
+                c.reminder_sent = True
+                sent += 1
+    db.session.commit()
+    return f"OK: {sent} reminders sent", 200
 
 
 # ── Bulk email ─────────────────────────────────────────────────────────────────

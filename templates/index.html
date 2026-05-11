@@ -33,6 +33,13 @@
   </form>
 </div>
 
+{# ── Search ───────────────────────────────────────────────────────────── #}
+<div style="margin-bottom:0.75rem">
+  <input type="search" id="contact-search" class="form-control"
+         placeholder="Hľadať podľa mena, emailu alebo telefónu…"
+         style="max-width:420px" autocomplete="off">
+</div>
+
 {# ── Filter tabs ──────────────────────────────────────────────────────── #}
 <div class="filter-wrap">
   <div class="filter-tabs">
@@ -217,6 +224,21 @@
 </div>
 
 <script>
+// ── Search ──
+const searchInput = document.getElementById('contact-search');
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('tbody tr').forEach(row => {
+      row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('.contact-card').forEach(card => {
+      card.style.display = (!q || card.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+  });
+}
+
+// ── Bulk ──
 const bulkBar   = document.getElementById('bulk-bar');
 const bulkCount = document.getElementById('bulk-count');
 const checkAll  = document.getElementById('check-all');
