@@ -145,18 +145,18 @@ DEFAULT_TEMPLATES = [
 
 def run_migrations():
     """Add new columns to existing tables without dropping data."""
-    with db.engine.connect() as conn:
-        for sql in [
-            "ALTER TABLE contact ADD COLUMN course_ref VARCHAR(200)",
-            "ALTER TABLE contact ADD COLUMN height VARCHAR(20)",
-            "ALTER TABLE contact ADD COLUMN session_id INTEGER REFERENCES course_session(id)",
-            "ALTER TABLE contact ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE",
-        ]:
-            try:
+    for sql in [
+        "ALTER TABLE contact ADD COLUMN course_ref VARCHAR(200)",
+        "ALTER TABLE contact ADD COLUMN height VARCHAR(20)",
+        "ALTER TABLE contact ADD COLUMN session_id INTEGER REFERENCES course_session(id)",
+        "ALTER TABLE contact ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE",
+    ]:
+        try:
+            with db.engine.connect() as conn:
                 conn.execute(db.text(sql))
                 conn.commit()
-            except Exception:
-                pass  # column already exists
+        except Exception:
+            pass  # column already exists
 
 
 def seed_defaults():
