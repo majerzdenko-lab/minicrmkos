@@ -212,6 +212,24 @@
     {% endif %}
   {% endfor %}
 
+  {# ── Notify pod termínmi ── #}
+  <div style="margin-top:1.5rem;border-top:1.5px solid #ddd8ce;padding-top:1.25rem">
+    {% if notify_sent %}
+      <div class="notify-success">✓ Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.</div>
+    {% else %}
+      <p style="font-size:0.88rem;color:#7a6e5e;margin-bottom:1rem;text-align:center">
+        Nevyhovuje vám žiadny termín? Zanechajte kontakt — dáme vám vedieť, keď vypíšeme nový.
+      </p>
+      <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
+        <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
+        <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
+        <input type="email" name="email" placeholder="E-mail" autocomplete="email">
+        <input type="tel" name="phone" placeholder="Telefón" autocomplete="tel">
+        <button type="submit">Dajte mi vedieť →</button>
+      </form>
+    {% endif %}
+  </div>
+
 {% else %}
   {% if notify_sent %}
     <div class="notify-success">
