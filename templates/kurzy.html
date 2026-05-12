@@ -253,5 +253,13 @@
   {% endif %}
 {% endif %}
 
+<script>
+function sendHeight() {
+  var h = document.documentElement.scrollHeight;
+  window.parent.postMessage({ kurzyHeight: h }, '*');
+}
+window.addEventListener('load', sendHeight);
+new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
+</script>
 </body>
 </html>
