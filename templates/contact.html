@@ -127,14 +127,17 @@
       <textarea name="note" class="form-control">{{ contact.note or '' }}</textarea>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem">
+    <div style="margin-top:0.25rem">
       <button type="submit" class="btn btn-primary">Uložiť zmeny</button>
-      <form method="POST" action="{{ url_for('contact_delete', id=contact.id) }}"
-            onsubmit="return confirm('Naozaj zmazať kontakt {{ contact.name }}?')">
-        <button type="submit" class="btn btn-danger btn-sm">Zmazať kontakt</button>
-      </form>
     </div>
   </form>
+
+  <div style="margin-top:0.75rem;display:flex;justify-content:flex-end">
+    <form method="POST" action="{{ url_for('contact_delete', id=contact.id) }}"
+          onsubmit="return confirm('Naozaj zmazať kontakt {{ contact.name }}?')">
+      <button type="submit" class="btn btn-danger btn-sm">Zmazať kontakt</button>
+    </form>
+  </div>
 </div>
 
 <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem">
