@@ -11,8 +11,10 @@
       font-family: 'Nunito', sans-serif;
       background: #fff;
       color: #1e1b14;
-      padding: 0.5rem 0 1rem;
+      padding: 0.5rem 0.75rem 1rem;
       font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto;
     }
 
     .session-card {
@@ -213,29 +215,19 @@
   {% endfor %}
 
   {# ── Notify pod termínmi ── #}
-  <div style="margin-top:0.9rem;border:1.5px solid #ddd8ce;border-radius:12px;padding:0.9rem 1.1rem;background:#faf9f6">
+  <div style="margin-top:1rem;border-top:1.5px solid #ddd8ce;padding-top:1.1rem;text-align:center">
     {% if notify_sent %}
-      <div style="text-align:center;color:#2a4e20;font-weight:700;font-size:0.93rem;padding:0.4rem 0">
-        ✓ Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.
-      </div>
+      <div class="notify-success">✓ Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.</div>
     {% else %}
-      <p style="font-size:0.8rem;color:#7a6e5e;margin-bottom:0.65rem;font-weight:600">
-        Nevyhovuje vám termín? Dáme vám vedieť, keď vypíšeme nový.
+      <p style="font-size:0.83rem;color:#7a6e5e;margin-bottom:1rem">
+        Nevyhovuje vám termín? Zanechajte kontakt — dáme vám vedieť, keď vypíšeme nový.
       </p>
-      <form method="POST" action="{{ url_for('kurzy_notify') }}">
+      <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
         <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">
-          <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name"
-                 style="min-height:38px;padding:0.35rem 0.7rem;border:1.5px solid #d4c9b0;border-radius:7px;font-size:0.85rem;font-family:inherit;color:#1e1b14;background:#fff;-webkit-appearance:none">
-          <input type="email" name="email" placeholder="E-mail" autocomplete="email"
-                 style="min-height:38px;padding:0.35rem 0.7rem;border:1.5px solid #d4c9b0;border-radius:7px;font-size:0.85rem;font-family:inherit;color:#1e1b14;background:#fff;-webkit-appearance:none">
-          <input type="tel" name="phone" placeholder="Telefón" autocomplete="tel"
-                 style="min-height:38px;padding:0.35rem 0.7rem;border:1.5px solid #d4c9b0;border-radius:7px;font-size:0.85rem;font-family:inherit;color:#1e1b14;background:#fff;-webkit-appearance:none">
-          <button type="submit"
-                  style="min-height:38px;background:#3a6b2e;color:#fff;border:none;border-radius:7px;font-size:0.88rem;font-weight:700;font-family:inherit;cursor:pointer">
-            Dajte mi vedieť →
-          </button>
-        </div>
+        <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
+        <input type="email" name="email" placeholder="E-mail" autocomplete="email">
+        <input type="tel" name="phone" placeholder="Telefón" autocomplete="tel">
+        <button type="submit">Dajte mi vedieť →</button>
       </form>
     {% endif %}
   </div>
