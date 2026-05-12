@@ -225,8 +225,8 @@
       <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
         <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
         <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
-        <input type="email" name="email" placeholder="E-mail" autocomplete="email">
-        <input type="tel" name="phone" placeholder="Telefón" autocomplete="tel">
+        <input type="email" name="email" placeholder="E-mail *" required autocomplete="email">
+        <input type="tel" name="phone" placeholder="Telefón *" required autocomplete="tel">
         <button type="submit">Dajte mi vedieť →</button>
       </form>
     {% endif %}
@@ -245,8 +245,8 @@
       <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
         <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
         <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
-        <input type="email" name="email" placeholder="E-mail" autocomplete="email">
-        <input type="tel" name="phone" placeholder="Telefón" autocomplete="tel">
+        <input type="email" name="email" placeholder="E-mail *" required autocomplete="email">
+        <input type="tel" name="phone" placeholder="Telefón *" required autocomplete="tel">
         <button type="submit">Dajte mi vedieť →</button>
       </form>
     </div>
