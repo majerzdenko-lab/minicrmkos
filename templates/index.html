@@ -102,7 +102,7 @@
                 <form method="POST" action="{{ url_for('contact_assign_course', id=c.id) }}" style="margin-top:0.2rem">
                   {% if sessions|length == 1 %}
                     <input type="hidden" name="session_id" value="{{ sessions[0].id }}">
-                    <button type="submit" class="btn btn-secondary btn-sm">+ {{ sessions[0].name }}{% if sessions[0].date %} ({{ sessions[0].date | fmt_date }}){% endif %}</button>
+                    <button type="submit" class="btn btn-secondary btn-sm">+ Priradiť termín</button>
                   {% else %}
                     <select name="session_id" class="form-control" style="font-size:0.78rem;min-height:32px;padding:0.2rem 0.5rem;margin-bottom:0.25rem">
                       {% for s in sessions %}
