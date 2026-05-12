@@ -822,5 +822,26 @@ def bulk_email_send():
     return redirect(url_for("index"))
 
 
+@app.route("/bulk/status", methods=["POST"])
+@login_required
+def bulk_status_change():
+    ids = [int(i) for i in request.form.get("ids", "").split(",") if i.strip().isdigit()]
+    new_status = request.form.get("status", "").strip()
+    if not new_status or new_status not in STATUS_ORDER:
+        flash("Neplatný stav.", "error")
+        return redirect(url_for("index"))
+    updated = 0
+    for contact in Contact.query.filter(Contact.id.in_(ids)).all():
+        if contact.status != new_status:
+            contact.status = new_status
+            contact.status_changed_at = datetime.utcnow()
+            if new_status == "zrušil" and contact.session_id:
+                notify_waiting_list(contact.session_id)
+            updated += 1
+    db.session.commit()
+    flash(f"Stav zmenený na „{new_status}" pre {updated} kontaktov.", "success")
+    return redirect(url_for("index"))
+
+
 if __name__ == "__main__":
     app.run(debug=True)

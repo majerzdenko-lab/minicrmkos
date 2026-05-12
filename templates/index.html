@@ -57,10 +57,19 @@
 </div>
 
 {# ── Bulk action bar ──────────────────────────────────────────────────── #}
-<div id="bulk-bar" style="display:none;background:var(--primary);color:#fff;padding:0.6rem 1rem;border-radius:8px;margin-bottom:0.75rem;display:none;align-items:center;gap:1rem;flex-wrap:wrap">
-  <span id="bulk-count" style="font-size:0.9rem;font-weight:600"></span>
-  <button onclick="sendBulkEmail()" class="btn btn-primary btn-sm" style="background:#fff;color:var(--primary);border:none">✉ Poslať email</button>
-  <button onclick="clearSelection()" class="btn btn-secondary btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4)">Zrušiť výber</button>
+<div id="bulk-bar" style="display:none;background:var(--primary);color:#fff;padding:0.6rem 1rem;border-radius:8px;margin-bottom:0.75rem;display:none;align-items:center;gap:0.6rem;flex-wrap:wrap">
+  <span id="bulk-count" style="font-size:0.9rem;font-weight:600;margin-right:0.4rem"></span>
+  <button onclick="sendBulkEmail()" class="btn btn-sm" style="background:#fff;color:var(--primary);border:none;font-weight:600">✉ Poslať email</button>
+  <span style="opacity:0.4">|</span>
+  <select id="bulk-status-select" class="form-control" style="height:30px;padding:0.1rem 0.4rem;font-size:0.83rem;width:auto;color:var(--text);min-width:160px">
+    <option value="">— zmeniť stav —</option>
+    {% for s in status_order %}
+      <option value="{{ s }}">{{ s }}</option>
+    {% endfor %}
+  </select>
+  <button onclick="bulkChangeStatus()" class="btn btn-sm" style="background:#fff;color:var(--primary);border:none;font-weight:600">✓ Uložiť</button>
+  <span style="opacity:0.4">|</span>
+  <button onclick="clearSelection()" class="btn btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4)">Zrušiť výber</button>
 </div>
 
 {# ── Desktop table ────────────────────────────────────────────────────── #}
@@ -262,6 +271,20 @@ function sendBulkEmail() {
   const ids = getChecked();
   if (ids.length === 0) return;
   window.location = '{{ url_for("bulk_email_form") }}?ids=' + ids.join(',');
+}
+
+function bulkChangeStatus() {
+  const ids = getChecked();
+  const status = document.getElementById('bulk-status-select').value;
+  if (ids.length === 0 || !status) return;
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '{{ url_for("bulk_status_change") }}';
+  const i1 = document.createElement('input'); i1.type='hidden'; i1.name='ids'; i1.value=ids.join(',');
+  const i2 = document.createElement('input'); i2.type='hidden'; i2.name='status'; i2.value=status;
+  form.appendChild(i1); form.appendChild(i2);
+  document.body.appendChild(form);
+  form.submit();
 }
 
 function clearSelection() {
