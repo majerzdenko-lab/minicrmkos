@@ -40,8 +40,8 @@
   <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
     {% for t in templates %}
       {% if t.subject or t.body %}
-        <button type="button" class="btn btn-secondary btn-sm"
-                onclick="fillTemplate({{ t.status | tojson }})">
+        <button type="button" class="btn btn-secondary btn-sm tpl-btn"
+                data-status="{{ t.status }}">
           {{ t.status }}
         </button>
       {% endif %}
@@ -88,12 +88,14 @@ const BULK_TEMPLATES = {
   {{ t.status | tojson }}: { subject: {{ (t.subject or '') | tojson }}, body: {{ (t.body or '') | tojson }} },
   {% endfor %}
 };
-function fillTemplate(status) {
-  const t = BULK_TEMPLATES[status];
-  if (!t) return;
-  document.getElementById('subject').value = t.subject;
-  document.getElementById('body').value = t.body;
-}
+document.querySelectorAll('.tpl-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const t = BULK_TEMPLATES[this.dataset.status];
+    if (!t) return;
+    document.getElementById('subject').value = t.subject;
+    document.getElementById('body').value = t.body;
+  });
+});
 </script>
 
 {% endblock %}
