@@ -410,9 +410,13 @@ def contact_detail(id):
 def contact_delete(id):
     contact = Contact.query.get_or_404(id)
     name = contact.name
+    session_id = contact.session_id
     db.session.delete(contact)
     db.session.commit()
     flash(f"Kontakt {name} zmazaný.", "success")
+    if session_id:
+        if notify_waiting_list(session_id):
+            flash("Miesto uvoľnené — prvý na čakacej listine bol notifikovaný.", "success")
     return redirect(url_for("index"))
 
 
