@@ -635,7 +635,7 @@ def kurzy_notify():
         )
         db.session.add(contact)
         db.session.commit()
-        admin = os.environ.get("GMAIL_USER", "")
+        admin = os.environ.get("ADMIN_EMAIL", "")
         if admin:
             send_mail(admin,
                 f"Nový záujemca o kurz: {name}",
@@ -680,7 +680,7 @@ def prihlasenie(session_id):
             )
             db.session.add(contact)
             db.session.commit()
-            admin = os.environ.get("GMAIL_USER", "")
+            admin = os.environ.get("ADMIN_EMAIL", "")
             if admin:
                 sess_label = course_label(sess)
                 send_mail(admin,
@@ -717,7 +717,7 @@ def prihlasenie_waiting(session_id):
     entry = WaitingList(session_id=sess.id, name=name, email=email, phone=phone)
     db.session.add(entry)
     db.session.commit()
-    admin = os.environ.get("GMAIL_USER", "")
+    admin = os.environ.get("ADMIN_EMAIL", "")
     if admin:
         send_mail(admin,
             f"Čakacia listina: {name} — {course_label(sess)}",
