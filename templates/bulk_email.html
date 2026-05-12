@@ -41,7 +41,7 @@
     {% for t in templates %}
       {% if t.subject or t.body %}
         <button type="button" class="btn btn-secondary btn-sm"
-                onclick="fillTemplate({{ t.subject | tojson }}, {{ t.body | tojson }})">
+                onclick="fillTemplate({{ t.status | tojson }})">
           {{ t.status }}
         </button>
       {% endif %}
@@ -83,9 +83,16 @@
 </div>
 
 <script>
-function fillTemplate(subject, body) {
-  document.getElementById('subject').value = subject;
-  document.getElementById('body').value = body;
+const BULK_TEMPLATES = {
+  {% for t in templates %}
+  {{ t.status | tojson }}: { subject: {{ (t.subject or '') | tojson }}, body: {{ (t.body or '') | tojson }} },
+  {% endfor %}
+};
+function fillTemplate(status) {
+  const t = BULK_TEMPLATES[status];
+  if (!t) return;
+  document.getElementById('subject').value = t.subject;
+  document.getElementById('body').value = t.body;
 }
 </script>
 
