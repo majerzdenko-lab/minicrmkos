@@ -195,6 +195,10 @@ def send_mail(to, subject, body):
     threading.Thread(target=_send, daemon=True).start()
 
 
+def first_name(full_name):
+    return (full_name or "").split()[0] if full_name else ""
+
+
 def notify_waiting_list(session_id):
     """Notify first person on waiting list that a spot opened. Returns True if notified."""
     first = WaitingList.query.filter_by(session_id=session_id).order_by(WaitingList.created_at).first()
@@ -323,8 +327,8 @@ def contact_send_email(id):
     if not template:
         flash("Pre tento stav nie je nastavená šablóna.", "error")
         return redirect(url_for("contact_detail", id=id))
-    subject = template.subject.replace("{meno}", contact.name)
-    body = template.body.replace("{meno}", contact.name)
+    subject = template.subject.replace("{meno}", first_name(contact.name))
+    body = template.body.replace("{meno}", first_name(contact.name))
     send_mail(contact.email, subject, body)
     flash(f"Email odoslaný na {contact.email}.", "success")
     return redirect(url_for("contact_detail", id=id))
@@ -767,8 +771,8 @@ def cron_send_reminders():
             if c.email and template:
                 send_mail(
                     c.email,
-                    template.subject.replace("{meno}", c.name),
-                    template.body.replace("{meno}", c.name),
+                    template.subject.replace("{meno}", first_name(c.name)),
+                    template.body.replace("{meno}", first_name(c.name)),
                 )
                 c.reminder_sent = True
                 sent += 1
@@ -807,8 +811,8 @@ def bulk_email_send():
             continue
         send_mail(
             c.email,
-            subject_tpl.replace("{meno}", c.name),
-            body_tpl.replace("{meno}", c.name),
+            subject_tpl.replace("{meno}", first_name(c.name)),
+            body_tpl.replace("{meno}", first_name(c.name)),
         )
         sent += 1
     parts = [f"Email odoslaný {sent} kontaktom."]
