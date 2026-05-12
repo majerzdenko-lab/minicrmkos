@@ -839,7 +839,7 @@ def bulk_status_change():
                 notify_waiting_list(contact.session_id)
             updated += 1
     db.session.commit()
-    flash(f"Stav zmenený na „{new_status}" pre {updated} kontaktov.", "success")
+    flash(f'Stav zmenený na "{new_status}" pre {updated} kontaktov.', "success")
     return redirect(url_for("index"))
 
 
