@@ -374,7 +374,11 @@ def contact_detail(id):
             contact.status_changed_at = datetime.utcnow()
         contact.note = request.form.get("note", "")
         new_session_id_str = request.form.get("session_id", "").strip()
-        if new_session_id_str.isdigit() and int(new_session_id_str) > 0:
+        old_session_id = contact.session_id
+        if new_session_id_str == "remove":
+            contact.session_id = None
+            contact.course_ref = ""
+        elif new_session_id_str.isdigit() and int(new_session_id_str) > 0:
             sess = CourseSession.query.get(int(new_session_id_str))
             if sess:
                 contact.session_id = sess.id
@@ -384,8 +388,9 @@ def contact_detail(id):
             if not new_session_id_str:
                 contact.session_id = None
         db.session.commit()
-        if status_changed and new_status == "zrušil" and contact.session_id:
-            if notify_waiting_list(contact.session_id):
+        if status_changed and new_status == "zrušil" and (contact.session_id or old_session_id):
+            notify_sid = contact.session_id or old_session_id
+            if notify_waiting_list(notify_sid):
                 flash("Miesto uvoľnené — prvý na čakacej listine bol notifikovaný.", "success")
         flash("Kontakt uložený.", "success")
         return redirect(url_for("contact_detail", id=id))

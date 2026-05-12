@@ -106,6 +106,9 @@
         {% if sessions %}
           <select name="session_id" id="session-select" class="form-control">
             <option value="">— ručný zápis —</option>
+            {% if contact.session_id %}
+              <option value="remove" style="color:#b52a2a">✕ Odobrať termín</option>
+            {% endif %}
             {% for s in sessions %}
               <option value="{{ s.id }}"
                 {% if contact.session_id == s.id %}selected{% endif %}>
@@ -188,6 +191,9 @@ if (sessionSelect) {
   sessionSelect.addEventListener('change', function() {
     if (this.value && SESSION_LABELS[this.value]) {
       courseRefInput.value = SESSION_LABELS[this.value];
+      courseRefInput.style.display = 'none';
+    } else if (this.value === 'remove') {
+      courseRefInput.value = '';
       courseRefInput.style.display = 'none';
     } else {
       courseRefInput.style.display = 'block';
