@@ -140,14 +140,21 @@
     Skopírujte kód a vložte ho do Shoptet HTML editora. Zákazníci uvidia zoznam termínov a po kliknutí sa môžu prihlásiť.
   </p>
   <div class="embed-box">
-    <pre id="embed-code" class="embed-pre">&lt;iframe
+    <pre id="embed-code" class="embed-pre">&lt;iframe id="kurzy-frame"
   src="{{ base_url }}/kurzy"
   width="100%"
-  height="520"
+  height="1000"
+  scrolling="no"
   frameborder="0"
-  style="border:none;border-radius:8px"
-  loading="lazy"
-&gt;&lt;/iframe&gt;</pre>
+  style="border:none;display:block;width:100%"
+&gt;&lt;/iframe&gt;
+&lt;script&gt;
+window.addEventListener('message', function(e) {
+  if (e.data &amp;&amp; e.data.kurzyHeight) {
+    document.getElementById('kurzy-frame').style.height = (e.data.kurzyHeight + 40) + 'px';
+  }
+});
+&lt;/script&gt;</pre>
     <button onclick="copyEmbed()" class="btn btn-secondary btn-sm" style="margin-top:0.5rem">
       Kopírovať kód
     </button>
