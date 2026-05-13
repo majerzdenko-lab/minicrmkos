@@ -4,255 +4,351 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Termíny kurzov — Veselý Kosec</title>
-  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── Design tokens ── */
+    :root {
+      --vk-ink:           #1F1814;
+      --vk-ink-2:         #3A2E25;
+      --vk-ink-3:         #6B5C4B;
+      --vk-ink-4:         #9B8B77;
+      --vk-bg:            #FFFFFF;
+      --vk-linen:         #F2ECE0;
+      --vk-linen-soft:    #F8F4EC;
+      --vk-rule:          #DCD2BD;
+      --vk-brass-deep:    #8A6A22;
+      --vk-brass-wash:    #F2E7CB;
+      --vk-success:       #3A6E18;
+      --vk-success-bg:    #DCE8D0;
+      --vk-warning:       #C47A08;
+      --vk-warning-bg:    #F5E5BE;
+      --vk-danger:        #B02C18;
+      --vk-danger-bg:     #EDD0C8;
+      --vk-action:        #1F1814;
+      --vk-action-hover:  #000000;
+      --vk-action-text:   #F2ECE0;
+      --vk-font:          'Nunito', 'Trebuchet MS', 'Helvetica Neue', sans-serif;
+      --vk-radius-2:      4px;
+      --vk-radius-3:      8px;
+      --vk-radius-pill:   999px;
+      --vk-ease:          cubic-bezier(0.22, 0.61, 0.36, 1);
+      --vk-dur-fast:      120ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Nunito', sans-serif;
-      background: #fff;
-      color: #1e1b14;
-      padding: 0.5rem 0.75rem 1rem;
-      font-size: 15px;
-      max-width: 480px;
+      font-family: var(--vk-font);
+      background: var(--vk-bg);
+      color: var(--vk-ink);
+      -webkit-font-smoothing: antialiased;
+      padding: 0.5rem 0.75rem 1.5rem;
+    }
+
+    /* ── Widget wrapper ── */
+    .vk-widget {
+      max-width: 500px;
       margin: 0 auto;
     }
 
-    .session-card {
-      display: block;
-      background: #fff;
-      border: 1.5px solid #ddd8ce;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      text-decoration: none;
-      color: inherit;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      transition: box-shadow 0.18s, transform 0.15s;
-    }
-    .session-card:hover {
-      box-shadow: 0 6px 22px rgba(42,78,32,0.15);
-      transform: translateY(-2px);
-    }
-    .session-card.session-full {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-    .session-card-top {
-      background: #2a4e20;
-      padding: 0.8rem 1.25rem 0.75rem;
-    }
-    .session-name {
+    .vk-widget__heading {
+      font-family: var(--vk-font);
+      font-size: 2rem;
       font-weight: 800;
-      font-size: 1.05rem;
-      color: #fff;
-      line-height: 1.3;
+      letter-spacing: -0.015em;
+      line-height: 1.15;
+      color: var(--vk-ink);
+      margin-bottom: 1.5rem;
     }
-    .session-card-body {
-      padding: 1rem 1.25rem 1.15rem;
-    }
-    .session-date-row {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #1e1b14;
-      margin-bottom: 0.3rem;
-      letter-spacing: -0.01em;
-    }
-    .session-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7rem;
-      font-size: 0.85rem;
-      color: #6a5e4e;
-      font-weight: 600;
-      margin-bottom: 0.9rem;
-    }
-    .spots {
-      display: inline-block;
-      font-size: 0.76rem;
-      font-weight: 700;
-      padding: 0.22rem 0.7rem;
-      border-radius: 20px;
-      margin-bottom: 0.9rem;
-    }
-    .spots-ok   { background: #e0eed8; color: #1e4a14; }
-    .spots-low  { background: #fef3d0; color: #7a5200; }
-    .spots-full { background: #f0ece3; color: #9a8870; }
 
-    .btn-reg {
+    /* ── Course card ── */
+    .vk-course-card {
+      background: var(--vk-bg);
+      border: 1px solid var(--vk-rule);
+      border-radius: var(--vk-radius-3);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .vk-course-card__header {
+      background: var(--vk-ink);
+      padding: 1rem 1.25rem;
+    }
+
+    .vk-course-card__eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--vk-linen);
+      opacity: 0.55;
+      margin-bottom: 0.3rem;
+    }
+
+    .vk-course-card__title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--vk-action-text);
+    }
+
+    .vk-course-card__body {
+      background: var(--vk-linen-soft);
+      padding: 1.25rem 1.25rem 1rem;
+    }
+
+    .vk-course-date {
+      font-family: var(--vk-font);
+      font-size: 1.875rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      color: var(--vk-ink);
+      margin-bottom: 0.6rem;
+    }
+
+    .vk-course-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .vk-course-meta__item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.9375rem;
+      color: var(--vk-ink-3);
+      font-weight: 500;
+    }
+
+    .vk-course-meta__item svg {
+      color: var(--vk-ink-4);
+      flex-shrink: 0;
+    }
+
+    .vk-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      line-height: 1;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--vk-radius-pill);
+    }
+
+    .vk-chip--success { background: var(--vk-success-bg); color: var(--vk-success); }
+    .vk-chip--warning { background: var(--vk-warning-bg); color: var(--vk-warning); }
+    .vk-chip--danger  { background: var(--vk-danger-bg);  color: var(--vk-danger);  }
+
+    .vk-chip__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .vk-course-card__footer {
+      background: var(--vk-bg);
+      padding: 1rem 1.25rem 1.25rem;
+    }
+
+    /* ── Button ── */
+    .vk-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      min-height: 50px;
-      background: #3a6b2e;
-      color: #fff;
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 0.875rem 1.5rem;
+      font-family: var(--vk-font);
+      font-size: 0.8125rem;
       font-weight: 700;
-      font-family: 'Nunito', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--vk-action-text);
+      background: var(--vk-action);
+      border: 1px solid transparent;
+      border-radius: var(--vk-radius-2);
+      cursor: pointer;
       text-decoration: none;
-      letter-spacing: 0.01em;
-      transition: background 0.15s;
-    }
-    .btn-reg:hover { background: #2a4e20; }
-    .btn-reg-full {
-      background: #e8e4dc;
-      color: #9a8870;
+      transition: background var(--vk-dur-fast) var(--vk-ease);
     }
 
-    /* ── Notify form ── */
-    .notify-wrap {
+    .vk-btn:hover { background: var(--vk-action-hover); }
+
+    .vk-btn--muted {
+      background: #E8E4DC;
+      color: var(--vk-ink-4);
+      cursor: default;
+    }
+
+    .vk-btn--muted:hover { background: #E8E4DC; }
+
+    /* ── Divider ── */
+    .vk-widget__divider {
+      border: none;
+      border-top: 1px solid var(--vk-rule);
+      margin: 2rem 0;
+    }
+
+    /* ── Notify section ── */
+    .vk-notify__lead {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--vk-ink-3);
       text-align: center;
-      padding: 1.5rem 0.5rem 0.5rem;
-    }
-    .notify-wrap img {
-      width: 56px;
-      height: 56px;
-      object-fit: contain;
-      margin-bottom: 1rem;
-      opacity: 0.85;
-    }
-    .notify-wrap h3 {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #2a4e20;
-      margin-bottom: 0.35rem;
-    }
-    .notify-wrap p {
-      font-size: 0.85rem;
-      color: #7a6e5e;
       margin-bottom: 1.25rem;
     }
-    .notify-form {
+
+    .vk-notify__form {
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
-      max-width: 400px;
-      margin: 0 auto;
-      text-align: left;
+      gap: 0.625rem;
     }
-    .notify-form input {
+
+    .vk-input {
       width: 100%;
-      min-height: 44px;
-      padding: 0.5rem 0.85rem;
-      border: 1.5px solid #d4c9b0;
-      border-radius: 8px;
-      font-size: 0.94rem;
-      font-family: 'Nunito', sans-serif;
-      color: #1e1b14;
-      background: #fff;
+      padding: 0.75rem 1rem;
+      font-family: var(--vk-font);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--vk-ink);
+      background: var(--vk-bg);
+      border: 1px solid var(--vk-rule);
+      border-radius: var(--vk-radius-2);
+      outline: none;
+      transition:
+        border-color var(--vk-dur-fast) var(--vk-ease),
+        box-shadow   var(--vk-dur-fast) var(--vk-ease);
       -webkit-appearance: none;
     }
-    .notify-form input:focus {
-      outline: none;
-      border-color: #3a6b2e;
-      box-shadow: 0 0 0 3px rgba(58,107,46,0.12);
-    }
-    .notify-form button {
-      min-height: 46px;
-      background: #3a6b2e;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      font-family: 'Nunito', sans-serif;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .notify-form button:hover { background: #2a4e20; }
 
-    .notify-success {
+    .vk-input::placeholder { color: var(--vk-ink-4); }
+    .vk-input:hover  { border-color: var(--vk-ink-3); }
+    .vk-input:focus  {
+      border-color: var(--vk-brass-deep);
+      box-shadow: 0 0 0 2px var(--vk-brass-wash);
+    }
+
+    .vk-notify__success {
       text-align: center;
       padding: 1.5rem 0.5rem;
-      color: #2a4e20;
+      font-size: 0.9375rem;
       font-weight: 700;
-      font-size: 0.95rem;
+      color: var(--vk-success);
     }
   </style>
 </head>
 <body>
 
+<div class="vk-widget">
+
 {% if sessions %}
+  <h2 class="vk-widget__heading">Termíny kurzov</h2>
+
   {% for s in sessions %}
     {% set left = s.spots_left %}
-    {% if left == 0 %}
-      <div class="session-card session-full">
-    {% else %}
-      <a href="{{ url_for('prihlasenie', session_id=s.id) }}" class="session-card" target="_blank">
-    {% endif %}
-      <div class="session-card-top">
-        <div class="session-name">{{ s.name }}</div>
+
+    <div class="vk-course-card">
+
+      <div class="vk-course-card__header">
+        <div class="vk-course-card__eyebrow">Kurz kosenia</div>
+        <div class="vk-course-card__title">{{ s.name }}</div>
       </div>
-      <div class="session-card-body">
+
+      <div class="vk-course-card__body">
+
         {% if s.date %}
-          <div class="session-date-row">📅 {{ s.date | fmt_date }}</div>
+          <div class="vk-course-date">{{ s.date | fmt_date }}</div>
         {% endif %}
-        <div class="session-meta">
-          {% if s.time %}<span>🕐 {{ s.time | fmt_time }}</span>{% endif %}
-          {% if s.location %}<span>📍 {{ s.location }}</span>{% endif %}
+
+        <div class="vk-course-meta">
+          {% if s.time %}
+            <span class="vk-course-meta__item">
+              <i data-lucide="clock" style="width:16px;height:16px;stroke-width:1.5;"></i>
+              {{ s.time | fmt_time }}
+            </span>
+          {% endif %}
+          {% if s.location %}
+            <span class="vk-course-meta__item">
+              <i data-lucide="map-pin" style="width:16px;height:16px;stroke-width:1.5;"></i>
+              {{ s.location }}
+            </span>
+          {% endif %}
         </div>
+
         {% if left is not none %}
           {% if left == 0 %}
-            <div><span class="spots spots-full">Termín obsadený</span></div>
+            <span class="vk-chip vk-chip--danger">
+              <span class="vk-chip__dot"></span>
+              Termín obsadený
+            </span>
           {% elif left <= 3 %}
-            <div><span class="spots spots-low">⚡ Posledné {{ left }} miesta</span></div>
+            <span class="vk-chip vk-chip--warning">
+              <span class="vk-chip__dot"></span>
+              Posledné {{ left }} miesta
+            </span>
           {% else %}
-            <div><span class="spots spots-ok">✓ {{ left }} voľných miest</span></div>
+            <span class="vk-chip vk-chip--success">
+              <span class="vk-chip__dot"></span>
+              {{ left }} voľných miest
+            </span>
           {% endif %}
         {% endif %}
+
+      </div>
+
+      <div class="vk-course-card__footer">
         {% if left == 0 %}
-          <div class="btn-reg btn-reg-full">Obsadený</div>
+          <span class="vk-btn vk-btn--muted">Obsadený</span>
         {% else %}
-          <div class="btn-reg">Prihlásiť sa na kurz →</div>
+          <a href="{{ url_for('prihlasenie', session_id=s.id) }}" class="vk-btn" target="_blank">Prihlásiť sa na kurz →</a>
         {% endif %}
       </div>
-    {% if left == 0 %}
-      </div>
-    {% else %}
-      </a>
-    {% endif %}
+
+    </div>
   {% endfor %}
 
-  {# ── Notify pod termínmi ── #}
-  <div style="margin-top:1rem;border-top:1.5px solid #ddd8ce;padding-top:1.1rem;text-align:center">
-    {% if notify_sent %}
-      <div class="notify-success">✓ Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.</div>
-    {% else %}
-      <p style="font-size:0.83rem;color:#7a6e5e;margin-bottom:1rem">
-        Nevyhovuje vám termín? Zanechajte kontakt — dáme vám vedieť, keď vypíšeme nový.
-      </p>
-      <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
-        <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
-        <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
-        <input type="email" name="email" placeholder="E-mail *" required autocomplete="email">
-        <input type="tel" name="phone" placeholder="Telefón *" required autocomplete="tel">
-        <button type="submit">Dajte mi vedieť →</button>
-      </form>
-    {% endif %}
-  </div>
+  <hr class="vk-widget__divider">
+
+  {% if notify_sent %}
+    <div class="vk-notify__success">Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.</div>
+  {% else %}
+    <p class="vk-notify__lead">Nevyhovuje vám termín? Zanechajte kontakt — dáme vám vedieť, keď vypíšeme nový.</p>
+    <form class="vk-notify__form" method="POST" action="{{ url_for('kurzy_notify') }}">
+      <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
+      <input class="vk-input" type="text"  name="name"  placeholder="Meno a priezvisko *" required autocomplete="name">
+      <input class="vk-input" type="email" name="email" placeholder="E-mail *"            required autocomplete="email">
+      <input class="vk-input" type="tel"   name="phone" placeholder="Telefón *"           required autocomplete="tel">
+      <button type="submit" class="vk-btn">Dajte mi vedieť →</button>
+    </form>
+  {% endif %}
 
 {% else %}
+
   {% if notify_sent %}
-    <div class="notify-success">
-      ✓ Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.
-    </div>
+    <div class="vk-notify__success">Ďakujeme! Ozveme sa vám, keď vypíšeme nový termín.</div>
   {% else %}
-    <div class="notify-wrap">
-      <img src="https://cdn.myshoptet.com/usr/www.veselykosec.sk/user/logos/2.png" alt="Veselý Kosec">
-      <h3>Momentálne nie sú vypísané termíny.</h3>
-      <p>Zanechajte nám kontakt a dáme vám vedieť, keď vypíšeme nový termín.</p>
-      <form class="notify-form" method="POST" action="{{ url_for('kurzy_notify') }}">
-        <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
-        <input type="text" name="name" placeholder="Meno a priezvisko *" required autocomplete="name">
-        <input type="email" name="email" placeholder="E-mail *" required autocomplete="email">
-        <input type="tel" name="phone" placeholder="Telefón *" required autocomplete="tel">
-        <button type="submit">Dajte mi vedieť →</button>
-      </form>
-    </div>
+    <p class="vk-notify__lead">Momentálne nie sú vypísané termíny.<br>Zanechajte nám kontakt — dáme vám vedieť, keď vypíšeme nový.</p>
+    <form class="vk-notify__form" method="POST" action="{{ url_for('kurzy_notify') }}">
+      <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
+      <input class="vk-input" type="text"  name="name"  placeholder="Meno a priezvisko *" required autocomplete="name">
+      <input class="vk-input" type="email" name="email" placeholder="E-mail *"            required autocomplete="email">
+      <input class="vk-input" type="tel"   name="phone" placeholder="Telefón *"           required autocomplete="tel">
+      <button type="submit" class="vk-btn">Dajte mi vedieť →</button>
+    </form>
   {% endif %}
+
 {% endif %}
 
+</div>
+
+<script>lucide.createIcons();</script>
 <script>
 function sendHeight() {
   var h = document.documentElement.scrollHeight;
