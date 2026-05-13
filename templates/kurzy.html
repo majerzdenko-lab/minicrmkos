@@ -8,18 +8,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    /* ── Design tokens ── */
     :root {
       --vk-ink:           #1F1814;
-      --vk-ink-2:         #3A2E25;
       --vk-ink-3:         #6B5C4B;
       --vk-ink-4:         #9B8B77;
       --vk-bg:            #FFFFFF;
       --vk-linen:         #F2ECE0;
-      --vk-linen-soft:    #F8F4EC;
       --vk-rule:          #DCD2BD;
-      --vk-brass-deep:    #8A6A22;
-      --vk-brass-wash:    #F2E7CB;
+      --vk-grass:         #5A8B2E;
+      --vk-grass-deep:    #426820;
+      --vk-grass-wash:    #E6F2D4;
+      --vk-sun:           #FFC500;
+      --vk-sun-deep:      #E0AC00;
       --vk-success:       #3A6E18;
       --vk-success-bg:    #DCE8D0;
       --vk-warning:       #C47A08;
@@ -28,7 +28,6 @@
       --vk-danger-bg:     #EDD0C8;
       --vk-action:        #1F1814;
       --vk-action-hover:  #000000;
-      --vk-action-text:   #F2ECE0;
       --vk-font:          'Nunito', 'Trebuchet MS', 'Helvetica Neue', sans-serif;
       --vk-radius-2:      4px;
       --vk-radius-3:      8px;
@@ -47,7 +46,6 @@
       padding: 0.5rem 0.75rem 1.5rem;
     }
 
-    /* ── Widget wrapper ── */
     .vk-widget {
       max-width: 500px;
       margin: 0 auto;
@@ -66,14 +64,14 @@
     /* ── Course card ── */
     .vk-course-card {
       background: var(--vk-bg);
-      border: 1px solid var(--vk-rule);
+      border: 2px solid var(--vk-grass);
       border-radius: var(--vk-radius-3);
       overflow: hidden;
       margin-bottom: 1rem;
     }
 
     .vk-course-card__header {
-      background: var(--vk-ink);
+      background: var(--vk-grass);
       padding: 1rem 1.25rem;
     }
 
@@ -82,8 +80,8 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.18em;
-      color: var(--vk-linen);
-      opacity: 0.55;
+      color: #ffffff;
+      opacity: 0.7;
       margin-bottom: 0.3rem;
     }
 
@@ -91,12 +89,13 @@
       font-size: 1.0625rem;
       font-weight: 700;
       line-height: 1.3;
-      color: var(--vk-action-text);
+      color: #ffffff;
     }
 
     .vk-course-card__body {
-      background: var(--vk-linen-soft);
+      background: var(--vk-bg);
       padding: 1.25rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--vk-rule);
     }
 
     .vk-course-date {
@@ -139,6 +138,7 @@
       line-height: 1;
       padding: 0.3rem 0.75rem;
       border-radius: var(--vk-radius-pill);
+      white-space: nowrap;
     }
 
     .vk-chip--success { background: var(--vk-success-bg); color: var(--vk-success); }
@@ -158,36 +158,43 @@
       padding: 1rem 1.25rem 1.25rem;
     }
 
-    /* ── Button ── */
+    /* ── CTA button — sun yellow ── */
     .vk-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding: 0.875rem 1.5rem;
+      padding: 0.9375rem 1.5rem;
       font-family: var(--vk-font);
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--vk-action-text);
-      background: var(--vk-action);
-      border: 1px solid transparent;
-      border-radius: var(--vk-radius-2);
+      letter-spacing: 0.09em;
+      color: var(--vk-ink);
+      background: var(--vk-sun);
+      border: none;
+      border-radius: 2px;
       cursor: pointer;
       text-decoration: none;
       transition: background var(--vk-dur-fast) var(--vk-ease);
     }
 
-    .vk-btn:hover { background: var(--vk-action-hover); }
+    .vk-btn:hover { background: var(--vk-sun-deep); color: var(--vk-ink); }
 
+    /* Notify button — ink dark */
+    .vk-btn--notify {
+      background: var(--vk-action);
+      color: var(--vk-linen);
+    }
+    .vk-btn--notify:hover { background: var(--vk-action-hover); color: var(--vk-linen); }
+
+    /* Muted / full */
     .vk-btn--muted {
       background: #E8E4DC;
       color: var(--vk-ink-4);
       cursor: default;
     }
-
-    .vk-btn--muted:hover { background: #E8E4DC; }
+    .vk-btn--muted:hover { background: #E8E4DC; color: var(--vk-ink-4); }
 
     /* ── Divider ── */
     .vk-widget__divider {
@@ -231,8 +238,8 @@
     .vk-input::placeholder { color: var(--vk-ink-4); }
     .vk-input:hover  { border-color: var(--vk-ink-3); }
     .vk-input:focus  {
-      border-color: var(--vk-brass-deep);
-      box-shadow: 0 0 0 2px var(--vk-brass-wash);
+      border-color: var(--vk-grass-deep);
+      box-shadow: 0 0 0 2px var(--vk-grass-wash);
     }
 
     .vk-notify__success {
@@ -325,7 +332,7 @@
       <input class="vk-input" type="text"  name="name"  placeholder="Meno a priezvisko *" required autocomplete="name">
       <input class="vk-input" type="email" name="email" placeholder="E-mail *"            required autocomplete="email">
       <input class="vk-input" type="tel"   name="phone" placeholder="Telefón *"           required autocomplete="tel">
-      <button type="submit" class="vk-btn">Dajte mi vedieť →</button>
+      <button type="submit" class="vk-btn vk-btn--notify">Dajte mi vedieť →</button>
     </form>
   {% endif %}
 
@@ -340,7 +347,7 @@
       <input class="vk-input" type="text"  name="name"  placeholder="Meno a priezvisko *" required autocomplete="name">
       <input class="vk-input" type="email" name="email" placeholder="E-mail *"            required autocomplete="email">
       <input class="vk-input" type="tel"   name="phone" placeholder="Telefón *"           required autocomplete="tel">
-      <button type="submit" class="vk-btn">Dajte mi vedieť →</button>
+      <button type="submit" class="vk-btn vk-btn--notify">Dajte mi vedieť →</button>
     </form>
   {% endif %}
 

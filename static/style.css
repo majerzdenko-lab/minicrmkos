@@ -1,27 +1,27 @@
 @import url('https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css');
 
 :root {
-  --primary:       #3a6b2e;   /* forest green */
-  --primary-dark:  #2a4e20;
-  --primary-light: #4d8a3f;
-  --accent:        #b8882a;   /* warm gold */
-  --accent-hover:  #9a7020;
+  --primary:       #5A8B2E;   /* vk-grass */
+  --primary-dark:  #426820;   /* vk-grass-deep */
+  --primary-light: #7AAD50;
+  --accent:        #FFC500;   /* vk-sun — CTA yellow */
+  --accent-hover:  #E0AC00;   /* vk-sun-deep */
   --white:         #ffffff;
-  --cream:         #f7f4ee;   /* warm off-white */
-  --bg:            #f0ece3;   /* warm paper */
-  --border:        #d4c9b0;   /* warm beige */
-  --text:          #1e1b14;
-  --text-muted:    #7a6e5e;
-  --danger:        #b52a2a;
-  --danger-hover:  #921f1f;
-  --success-bg:    #e0eed8;
-  --success-text:  #1e4a14;
-  --error-bg:      #f8ddd8;
-  --error-text:    #7a1e1e;
-  --stale:         #c07020;
+  --cream:         #F8F4EC;   /* vk-linen-soft */
+  --bg:            #FAF7F0;   /* vk-bg-alt */
+  --border:        #DCD2BD;   /* vk-rule */
+  --text:          #1F1814;   /* vk-ink */
+  --text-muted:    #6B5C4B;   /* vk-ink-3 */
+  --danger:        #B02C18;   /* vk-danger */
+  --danger-hover:  #8C2010;
+  --success-bg:    #DCE8D0;   /* vk-success-bg */
+  --success-text:  #3A6E18;   /* vk-success */
+  --error-bg:      #EDD0C8;   /* vk-danger-bg */
+  --error-text:    #B02C18;
+  --stale:         #C47A08;   /* vk-warning */
   --radius:        8px;
-  --shadow:        0 1px 4px rgba(0,0,0,0.08);
-  --shadow-md:     0 2px 8px rgba(0,0,0,0.12);
+  --shadow:        0 1px 4px rgba(31,24,20,0.08);
+  --shadow-md:     0 2px 8px rgba(31,24,20,0.12);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -190,7 +190,7 @@ body {
 .form-control:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(58,107,46,0.13);
+  box-shadow: 0 0 0 3px rgba(90,139,46,0.15);
 }
 textarea.form-control { min-height: 130px; resize: vertical; line-height: 1.55; }
 select.form-control {
