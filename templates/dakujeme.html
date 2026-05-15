@@ -4,31 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ďakujeme — Veselý Kosec</title>
-  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --vk-ink:        #1F1814;
+      --vk-ink-3:      #6B5C4B;
+      --vk-ink-4:      #9B8B77;
+      --vk-bg:         #FFFFFF;
+      --vk-linen:      #F2ECE0;
+      --vk-rule:       #DCD2BD;
+      --vk-grass:      #5A8B2E;
+      --vk-grass-deep: #426820;
+      --vk-font:       'Nunito', 'Trebuchet MS', 'Helvetica Neue', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Nunito', sans-serif;
-      background: #fff;
-      color: #1e1b14;
+      font-family: var(--vk-font);
+      background: var(--vk-bg);
+      color: var(--vk-ink);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
+
     .top-bar {
-      background: #fff;
-      border-bottom: 1px solid #d4c9b0;
-      padding: 0.55rem 1.25rem;
+      background: var(--vk-bg);
+      border-bottom: 1px solid var(--vk-rule);
+      padding: 0.6rem 1.25rem;
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
-    .logo-img {
-      width: 44px; height: 44px;
-      object-fit: contain; flex-shrink: 0;
-    }
-    .top-bar-title { font-family:'Nunito',sans-serif; font-size:0.95rem; font-weight:700; color:#2a4e20; }
-    .top-bar-sub   { font-size:0.72rem; color:#7a6e5e; }
+    .logo-img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+    .top-bar-title { font-size: 0.95rem; font-weight: 700; color: var(--vk-grass-deep); line-height: 1.2; }
+    .top-bar-sub   { font-size: 0.72rem; color: var(--vk-ink-3); }
 
     .wrap {
       max-width: 480px;
@@ -37,62 +51,90 @@
       text-align: center;
       flex: 1;
     }
-    .check-icon {
-      width: 72px; height: 72px;
-      background: #3a6b2e;
+
+    .check-circle {
+      width: 72px;
+      height: 72px;
+      background: var(--vk-grass);
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin: 0 auto 1.25rem;
-      font-size: 2rem;
+      color: #fff;
     }
+
     h1 {
-      font-family: 'Nunito', sans-serif;
       font-size: 1.5rem;
       font-weight: 800;
-      color: #2a4e20;
+      color: var(--vk-ink);
       margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
     }
+
     .sub {
       font-size: 0.94rem;
-      color: #7a6e5e;
+      color: var(--vk-ink-3);
       line-height: 1.6;
       margin-bottom: 1.5rem;
     }
+
+    /* ── Session box ── */
     .session-box {
-      background: #2a4e20;
-      color: #fff;
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
+      border: 2px solid var(--vk-grass);
+      border-radius: 8px;
+      overflow: hidden;
       margin-bottom: 1.25rem;
       text-align: left;
     }
-    .session-box strong {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
-      display: block;
-      margin-bottom: 0.4rem;
+    .session-box__header {
+      background: var(--vk-grass);
+      padding: 0.75rem 1.25rem;
     }
-    .session-box-meta {
-      display: flex; flex-wrap: wrap; gap: 0.65rem;
-      font-size: 0.84rem; opacity: 0.88;
+    .session-box__name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
     }
+    .session-box__body {
+      background: var(--vk-bg);
+      padding: 0.875rem 1.25rem;
+    }
+    .session-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .session-meta__item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.88rem;
+      color: var(--vk-ink-3);
+      font-weight: 500;
+    }
+    .session-meta__item svg { color: var(--vk-ink-4); flex-shrink: 0; }
+
     .contact-box {
-      background: #fff;
-      border: 1px solid #e0ddd5;
-      border-radius: 10px;
+      background: var(--vk-bg);
+      border: 1px solid var(--vk-rule);
+      border-radius: 8px;
       padding: 1rem;
       font-size: 0.85rem;
-      color: #7a6e5e;
+      color: var(--vk-ink-3);
       line-height: 1.7;
     }
-    .contact-box a { color: #3a6b2e; text-decoration: none; }
+    .contact-box a { color: var(--vk-grass-deep); text-decoration: none; }
+    .contact-box a:hover { text-decoration: underline; }
+
     .footer {
       text-align: center;
       padding: 1.5rem;
       font-size: 0.72rem;
-      color: #b0a590;
+      color: var(--vk-ink-4);
     }
-    .footer a { color: #3a6b2e; text-decoration: none; }
+    .footer a { color: var(--vk-grass-deep); text-decoration: none; }
   </style>
 </head>
 <body>
@@ -107,7 +149,9 @@
 </div>
 
 <div class="wrap">
-  <div class="check-icon">✓</div>
+  <div class="check-circle">
+    <i data-lucide="check" style="width:32px;height:32px;stroke-width:2.5;"></i>
+  </div>
   <h1>Ďakujeme za prihlásenie!</h1>
   <p class="sub">
     Vaša prihláška bola úspešne odoslaná.<br>
@@ -116,11 +160,30 @@
 
   {% if sess %}
     <div class="session-box">
-      <strong>{{ sess.name }}</strong>
-      <div class="session-box-meta">
-        {% if sess.date %}📅 {{ sess.date | fmt_date }}{% endif %}
-        {% if sess.time %}🕐 {{ sess.time | fmt_time }}{% endif %}
-        {% if sess.location %}📍 {{ sess.location }}{% endif %}
+      <div class="session-box__header">
+        <div class="session-box__name">{{ sess.name }}</div>
+      </div>
+      <div class="session-box__body">
+        <div class="session-meta">
+          {% if sess.date %}
+            <span class="session-meta__item">
+              <i data-lucide="calendar" style="width:14px;height:14px;stroke-width:1.5;"></i>
+              {{ sess.date | fmt_date }}
+            </span>
+          {% endif %}
+          {% if sess.time %}
+            <span class="session-meta__item">
+              <i data-lucide="clock" style="width:14px;height:14px;stroke-width:1.5;"></i>
+              {{ sess.time | fmt_time }}
+            </span>
+          {% endif %}
+          {% if sess.location %}
+            <span class="session-meta__item">
+              <i data-lucide="map-pin" style="width:14px;height:14px;stroke-width:1.5;"></i>
+              {{ sess.location }}
+            </span>
+          {% endif %}
+        </div>
       </div>
     </div>
   {% endif %}
@@ -138,5 +201,6 @@
   &nbsp;·&nbsp; Strelníky 218, Banská Bystrica
 </div>
 
+<script>lucide.createIcons();</script>
 </body>
 </html>

@@ -187,7 +187,7 @@
           {% if c.phone and c.email %} · {% endif %}
           {% if c.email %}{{ c.email }}{% endif %}
           {% if c.source %} · {{ c.source }}{% endif %}
-          {% if c.course_ref %}<br><span style="color:var(--accent)">📅 {{ c.course_ref }}</span>{% endif %}
+          {% if c.course_ref %}<br><span style="color:var(--text-muted);font-size:0.8rem">{{ c.course_ref }}</span>{% endif %}
         </div>
         {% if not c.course_ref and sessions %}
           <div style="margin:0.4rem 0">

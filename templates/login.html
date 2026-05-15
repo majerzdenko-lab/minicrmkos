@@ -4,27 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prihlásenie — Veselý Kosec CRM</title>
-  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --vk-ink:        #1F1814;
+      --vk-ink-3:      #6B5C4B;
+      --vk-ink-4:      #9B8B77;
+      --vk-bg:         #FFFFFF;
+      --vk-linen-soft: #F8F4EC;
+      --vk-rule:       #DCD2BD;
+      --vk-grass:      #5A8B2E;
+      --vk-grass-deep: #426820;
+      --vk-grass-wash: #E6F2D4;
+      --vk-danger:     #B02C18;
+      --vk-danger-bg:  #EDD0C8;
+      --vk-font:       'Nunito', 'Trebuchet MS', 'Helvetica Neue', sans-serif;
+      --vk-ease:       cubic-bezier(0.22, 0.61, 0.36, 1);
+      --vk-dur-fast:   120ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Nunito', sans-serif;
-      background: #f7f4ee;
+      font-family: var(--vk-font);
+      background: var(--vk-linen-soft);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1rem;
+      -webkit-font-smoothing: antialiased;
     }
+
     .card {
-      background: #fff;
-      border: 1px solid #e0ddd5;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      background: var(--vk-bg);
+      border: 1px solid var(--vk-rule);
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(31,24,20,0.08);
       padding: 2rem 1.75rem;
       width: 100%;
       max-width: 360px;
     }
+
     .logo-wrap {
       display: flex;
       align-items: center;
@@ -35,62 +57,73 @@
     .logo-wrap-text h1 {
       font-size: 1rem;
       font-weight: 800;
-      color: #2a4e20;
+      color: var(--vk-grass-deep);
+      line-height: 1.2;
     }
     .logo-wrap-text p {
       font-size: 0.72rem;
-      color: #7a6e5e;
+      color: var(--vk-ink-3);
       margin-top: 0.1rem;
     }
+
     .form-group { margin-bottom: 1rem; }
+
     label {
       display: block;
       font-size: 0.72rem;
       font-weight: 700;
-      color: #7a6e5e;
+      color: var(--vk-ink-3);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       margin-bottom: 0.3rem;
     }
+
     input[type="text"], input[type="password"] {
       width: 100%;
       min-height: 46px;
       padding: 0.5rem 0.85rem;
-      border: 1.5px solid #d4c9b0;
-      border-radius: 8px;
+      border: 1px solid var(--vk-rule);
+      border-radius: 4px;
       font-size: 0.95rem;
-      font-family: 'Nunito', sans-serif;
-      color: #1e1b14;
-      background: #fff;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: var(--vk-font);
+      color: var(--vk-ink);
+      background: var(--vk-bg);
+      transition: border-color var(--vk-dur-fast) var(--vk-ease),
+                  box-shadow   var(--vk-dur-fast) var(--vk-ease);
       -webkit-appearance: none;
-    }
-    input:focus {
       outline: none;
-      border-color: #3a6b2e;
-      box-shadow: 0 0 0 3px rgba(58,107,46,0.12);
     }
+    input::placeholder { color: var(--vk-ink-4); }
+    input:hover  { border-color: var(--vk-ink-3); }
+    input:focus  {
+      border-color: var(--vk-grass-deep);
+      box-shadow: 0 0 0 2px var(--vk-grass-wash);
+    }
+
     .btn {
       width: 100%;
       min-height: 50px;
-      background: #3a6b2e;
+      background: var(--vk-grass);
       color: #fff;
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
       font-weight: 700;
-      font-family: 'Nunito', sans-serif;
+      font-family: var(--vk-font);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       cursor: pointer;
       margin-top: 0.5rem;
-      transition: background 0.15s;
+      transition: background var(--vk-dur-fast) var(--vk-ease);
     }
-    .btn:hover { background: #2a4e20; }
+    .btn:hover { background: var(--vk-grass-deep); }
+
     .error {
-      background: #f5ddd8;
-      color: #7a1e1e;
-      border-left: 4px solid #b52a2a;
+      background: var(--vk-danger-bg);
+      color: var(--vk-danger);
+      border-left: 3px solid var(--vk-danger);
       padding: 0.65rem 0.9rem;
-      border-radius: 7px;
+      border-radius: 4px;
       margin-bottom: 1rem;
       font-size: 0.88rem;
     }
@@ -120,7 +153,7 @@
       <label for="password">Heslo</label>
       <input type="password" id="password" name="password" autocomplete="current-password" required>
     </div>
-    <button type="submit" class="btn">Prihlásiť sa →</button>
+    <button type="submit" class="btn">Prihlásiť sa</button>
   </form>
 </div>
 </body>

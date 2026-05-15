@@ -4,96 +4,143 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prihlásenie na kurz — Veselý Kosec</title>
-  <link href="https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --vk-ink:        #1F1814;
+      --vk-ink-3:      #6B5C4B;
+      --vk-ink-4:      #9B8B77;
+      --vk-bg:         #FFFFFF;
+      --vk-linen:      #F2ECE0;
+      --vk-rule:       #DCD2BD;
+      --vk-grass:      #5A8B2E;
+      --vk-grass-deep: #426820;
+      --vk-grass-wash: #E6F2D4;
+      --vk-sun:        #FFC500;
+      --vk-sun-deep:   #E0AC00;
+      --vk-success:    #3A6E18;
+      --vk-success-bg: #DCE8D0;
+      --vk-warning:    #C47A08;
+      --vk-warning-bg: #F5E5BE;
+      --vk-danger:     #B02C18;
+      --vk-danger-bg:  #EDD0C8;
+      --vk-font:       'Nunito', 'Trebuchet MS', 'Helvetica Neue', sans-serif;
+      --vk-ease:       cubic-bezier(0.22, 0.61, 0.36, 1);
+      --vk-dur-fast:   120ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Nunito', sans-serif;
-      background: #fff;
-      color: #1e1b14;
+      font-family: var(--vk-font);
+      background: var(--vk-bg);
+      color: var(--vk-ink);
       min-height: 100vh;
-      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* ── Top bar ── */
     .top-bar {
-      background: #fff;
-      border-bottom: 1px solid #d4c9b0;
-      padding: 0.55rem 1.25rem;
+      background: var(--vk-bg);
+      border-bottom: 1px solid var(--vk-rule);
+      padding: 0.6rem 1.25rem;
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
-    .logo-img {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
+    .logo-img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
     .top-bar-title {
-      font-family: 'Nunito', sans-serif;
       font-size: 0.95rem;
       font-weight: 700;
-      color: #2a4e20;
+      color: var(--vk-grass-deep);
+      line-height: 1.2;
     }
-    .top-bar-sub { font-size: 0.72rem; color: #7a6e5e; }
+    .top-bar-sub { font-size: 0.72rem; color: var(--vk-ink-3); }
 
     .wrap {
       max-width: 520px;
       margin: 0 auto;
-      padding: 1.5rem 1rem 2.5rem;
+      padding: 1.5rem 1rem 3rem;
     }
 
     /* ── Session info card ── */
     .session-card {
-      background: #2a4e20;
-      color: #fff;
-      border-radius: 10px;
-      padding: 1.1rem 1.25rem;
+      border: 2px solid var(--vk-grass);
+      border-radius: 8px;
+      overflow: hidden;
       margin-bottom: 1.25rem;
     }
-    .session-card-name {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
+    .session-card__header {
+      background: var(--vk-grass);
+      padding: 0.875rem 1.25rem;
     }
-    .session-card-meta {
+    .session-card__eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #fff;
+      opacity: 0.7;
+      margin-bottom: 0.2rem;
+    }
+    .session-card__name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .session-card__body {
+      background: var(--vk-bg);
+      padding: 1rem 1.25rem;
+    }
+    .session-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.65rem;
-      font-size: 0.84rem;
-      opacity: 0.88;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
     }
+    .session-meta__item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      color: var(--vk-ink-3);
+      font-weight: 500;
+    }
+    .session-meta__item svg { color: var(--vk-ink-4); flex-shrink: 0; }
+
     .spots-chip {
-      display: inline-block;
-      margin-top: 0.55rem;
-      padding: 0.18rem 0.65rem;
-      border-radius: 12px;
-      font-size: 0.74rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
       font-weight: 700;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
     }
-    .spots-ok   { background: #e0eed8; color: #1e4a14; }
-    .spots-low  { background: #fef3d0; color: #7a5200; }
-    .spots-full { background: #f5ddd8; color: #7a1e1e; }
+    .spots-chip__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .spots-ok   { background: var(--vk-success-bg); color: var(--vk-success); }
+    .spots-low  { background: var(--vk-warning-bg); color: var(--vk-warning); }
+    .spots-full { background: var(--vk-danger-bg);  color: var(--vk-danger);  }
 
     /* ── Form card ── */
     .form-card {
-      background: #fff;
-      border: 1px solid #e0ddd5;
-      border-radius: 10px;
+      background: var(--vk-bg);
+      border: 1px solid var(--vk-rule);
+      border-radius: 8px;
       padding: 1.25rem;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
     }
     .form-card h3 {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: #2a4e20;
-      margin-bottom: 1.1rem;
+      color: var(--vk-ink);
+      margin-bottom: 1rem;
       padding-bottom: 0.6rem;
-      border-bottom: 2px solid #f0ece3;
+      border-bottom: 1px solid var(--vk-rule);
     }
+    .form-card h3.danger { color: var(--vk-danger); }
 
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .form-group { margin-bottom: 0.9rem; }
@@ -101,86 +148,111 @@
       display: block;
       font-size: 0.72rem;
       font-weight: 700;
-      color: #7a6e5e;
+      color: var(--vk-ink-3);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       margin-bottom: 0.3rem;
     }
     .form-control {
       width: 100%;
       min-height: 46px;
       padding: 0.5rem 0.85rem;
-      border: 1.5px solid #d4c9b0;
-      border-radius: 8px;
+      border: 1px solid var(--vk-rule);
+      border-radius: 4px;
       font-size: 0.94rem;
-      font-family: 'Nunito', sans-serif;
-      background: #fff;
-      color: #1e1b14;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: var(--vk-font);
+      background: var(--vk-bg);
+      color: var(--vk-ink);
+      transition: border-color var(--vk-dur-fast) var(--vk-ease),
+                  box-shadow   var(--vk-dur-fast) var(--vk-ease);
       -webkit-appearance: none;
-    }
-    .form-control:focus {
       outline: none;
-      border-color: #3a6b2e;
-      box-shadow: 0 0 0 3px rgba(58,107,46,0.12);
     }
-    .form-hint { font-size: 0.74rem; color: #9a8870; margin-top: 0.25rem; }
+    .form-control::placeholder { color: var(--vk-ink-4); }
+    .form-control:hover  { border-color: var(--vk-ink-3); }
+    .form-control:focus  {
+      border-color: var(--vk-grass-deep);
+      box-shadow: 0 0 0 2px var(--vk-grass-wash);
+    }
+    .form-hint { font-size: 0.74rem; color: var(--vk-ink-4); margin-top: 0.25rem; }
+    .form-note { font-size: 0.74rem; color: var(--vk-ink-4); margin-bottom: 0.75rem; }
 
+    /* ── Buttons ── */
     .btn-submit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       min-height: 50px;
-      background: #3a6b2e;
-      color: #fff;
+      padding: 0.875rem 1.5rem;
+      background: var(--vk-sun);
+      color: var(--vk-ink);
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 2px;
+      font-size: 0.875rem;
       font-weight: 700;
-      font-family: 'Nunito', sans-serif;
+      font-family: var(--vk-font);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
       cursor: pointer;
-      letter-spacing: 0.01em;
-      transition: background 0.15s, transform 0.1s;
       margin-top: 0.5rem;
+      transition: background var(--vk-dur-fast) var(--vk-ease);
     }
-    .btn-submit:hover { background: #2a4e20; }
-    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:hover { background: var(--vk-sun-deep); }
 
+    .btn-submit--waiting {
+      background: var(--vk-ink);
+      color: var(--vk-linen);
+    }
+    .btn-submit--waiting:hover { background: #000; }
+
+    /* ── Error ── */
     .error-box {
-      background: #f5ddd8;
-      color: #7a1e1e;
-      border-left: 4px solid #b52a2a;
+      background: var(--vk-danger-bg);
+      color: var(--vk-danger);
+      border-left: 3px solid var(--vk-danger);
       padding: 0.75rem 1rem;
-      border-radius: 7px;
+      border-radius: 4px;
       margin-bottom: 1rem;
       font-size: 0.88rem;
     }
+
+    /* ── Closed state ── */
+    .closed-box {
+      background: var(--vk-bg);
+      border: 1px solid var(--vk-rule);
+      border-radius: 8px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: var(--vk-ink-3);
+    }
+    .closed-box strong { color: var(--vk-ink); font-size: 1rem; display: block; margin-bottom: 0.5rem; }
+    .closed-box a {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--vk-grass-deep);
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+    .closed-box a:hover { text-decoration: underline; }
 
     .back-link {
       display: block;
       text-align: center;
       margin-top: 1rem;
       font-size: 0.82rem;
-      color: #7a6e5e;
+      color: var(--vk-ink-3);
       text-decoration: none;
     }
-    .back-link:hover { color: #3a6b2e; }
-
-    .closed-box {
-      background: #fff;
-      border: 1px solid #e0ddd5;
-      border-radius: 10px;
-      padding: 2.5rem 1rem;
-      text-align: center;
-      color: #7a6e5e;
-    }
-    .closed-box strong { color: #1e1b14; font-size: 1rem; display: block; margin-bottom: 0.5rem; }
+    .back-link:hover { color: var(--vk-grass-deep); }
 
     .footer {
       text-align: center;
       margin-top: 2rem;
       font-size: 0.72rem;
-      color: #b0a590;
+      color: var(--vk-ink-4);
     }
-    .footer a { color: #3a6b2e; text-decoration: none; }
+    .footer a { color: var(--vk-grass-deep); text-decoration: none; }
 
     @media (max-width: 480px) {
       .form-row { grid-template-columns: 1fr; }
@@ -202,34 +274,59 @@
 
   {% if not is_open %}
     <div class="closed-box">
-      <div style="font-size:2.5rem;margin-bottom:0.75rem">🌾</div>
       <strong>Prihlasovanie momentálne nie je otvorené.</strong>
-      <p style="font-size:0.85rem">Sledujte nás pre aktuálne termíny.</p>
-      <a href="{{ url_for('kurzy_widget') }}"
-         style="display:inline-block;margin-top:1rem;color:#3a6b2e;font-size:0.85rem">
-        ← Všetky termíny
-      </a>
+      <p style="font-size:0.85rem;margin-top:0.5rem">Sledujte nás pre aktuálne termíny.</p>
+      <a href="{{ url_for('kurzy_widget') }}">← Všetky termíny</a>
     </div>
 
   {% else %}
 
     <div class="session-card">
-      <div class="session-card-name">{{ sess.name }}</div>
-      <div class="session-card-meta">
-        {% if sess.date %}<span>📅 {{ sess.date | fmt_date }}</span>{% endif %}
-        {% if sess.time %}<span>🕐 {{ sess.time | fmt_time }}</span>{% endif %}
-        {% if sess.location %}<span>📍 {{ sess.location }}</span>{% endif %}
+      <div class="session-card__header">
+        <div class="session-card__eyebrow">Kurz kosenia</div>
+        <div class="session-card__name">{{ sess.name }}</div>
       </div>
-      {% set left = sess.spots_left %}
-      {% if left is not none %}
-        {% if left == 0 %}
-          <div><span class="spots-chip spots-full">Obsadený</span></div>
-        {% elif left <= 3 %}
-          <div><span class="spots-chip spots-low">Posledné {{ left }} miesta</span></div>
-        {% else %}
-          <div><span class="spots-chip spots-ok">{{ left }} voľných miest</span></div>
+      <div class="session-card__body">
+        <div class="session-meta">
+          {% if sess.date %}
+            <span class="session-meta__item">
+              <i data-lucide="calendar" style="width:15px;height:15px;stroke-width:1.5;"></i>
+              {{ sess.date | fmt_date }}
+            </span>
+          {% endif %}
+          {% if sess.time %}
+            <span class="session-meta__item">
+              <i data-lucide="clock" style="width:15px;height:15px;stroke-width:1.5;"></i>
+              {{ sess.time | fmt_time }}
+            </span>
+          {% endif %}
+          {% if sess.location %}
+            <span class="session-meta__item">
+              <i data-lucide="map-pin" style="width:15px;height:15px;stroke-width:1.5;"></i>
+              {{ sess.location }}
+            </span>
+          {% endif %}
+        </div>
+        {% set left = sess.spots_left %}
+        {% if left is not none %}
+          {% if left == 0 %}
+            <span class="spots-chip spots-full">
+              <span class="spots-chip__dot"></span>
+              Termín obsadený
+            </span>
+          {% elif left <= 3 %}
+            <span class="spots-chip spots-low">
+              <span class="spots-chip__dot"></span>
+              Posledné {{ left }} miesta
+            </span>
+          {% else %}
+            <span class="spots-chip spots-ok">
+              <span class="spots-chip__dot"></span>
+              {{ left }} voľných miest
+            </span>
+          {% endif %}
         {% endif %}
-      {% endif %}
+      </div>
     </div>
 
     {% if error %}
@@ -238,9 +335,9 @@
 
     {% if sess.spots_left == 0 %}
       <div class="form-card">
-        <h3 style="color:#7a1e1e">Termín je obsadený</h3>
-        <p style="font-size:0.88rem;color:#7a6e5e;margin-bottom:1rem">
-          Zapíšte sa na čakaciu listinu — ozveme sa Vám ak sa uvoľní miesto.
+        <h3 class="danger">Termín je obsadený</h3>
+        <p style="font-size:0.88rem;color:var(--vk-ink-3);margin-bottom:1rem;line-height:1.6">
+          Zapíšte sa na čakaciu listinu — ozveme sa vám, ak sa uvoľní miesto.
         </p>
         <form method="POST" action="{{ url_for('prihlasenie_waiting', session_id=sess.id) }}">
           <input type="text" name="website" autocomplete="off" style="display:none" tabindex="-1">
@@ -256,8 +353,8 @@
             <label class="form-label">Telefón</label>
             <input type="tel" name="phone" class="form-control" placeholder="+421 9xx xxx xxx" autocomplete="tel">
           </div>
-          <p style="font-size:0.74rem;color:#9a8870;margin-bottom:0.75rem">* Zadajte aspoň e-mail alebo telefón.</p>
-          <button type="submit" class="btn-submit" style="background:#7a5200">Zapísať sa na čakaciu listinu →</button>
+          <p class="form-note">* Zadajte aspoň e-mail alebo telefón.</p>
+          <button type="submit" class="btn-submit btn-submit--waiting">Zapísať sa na čakaciu listinu →</button>
         </form>
       </div>
       <a href="{{ url_for('kurzy_widget') }}" class="back-link">← Iné termíny</a>
@@ -295,13 +392,10 @@
                    placeholder="175" min="100" max="230">
             <p class="form-hint">Výška slúži na správne nastavenie dĺžky kosiska.</p>
           </div>
-          <p style="font-size:0.74rem;color:#9a8870;margin-bottom:0.75rem">
-            * Povinné polia. Zadajte aspoň e-mail alebo telefón.
-          </p>
+          <p class="form-note">* Povinné polia. Zadajte aspoň e-mail alebo telefón.</p>
           <button type="submit" class="btn-submit">Prihlásiť sa na kurz →</button>
         </form>
       </div>
-
       <a href="{{ url_for('kurzy_widget') }}" class="back-link">← Všetky termíny</a>
     {% endif %}
 
@@ -313,5 +407,6 @@
   </div>
 </div>
 
+<script>lucide.createIcons();</script>
 </body>
 </html>

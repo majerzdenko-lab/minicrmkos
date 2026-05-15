@@ -39,13 +39,13 @@
       </div>
       <div class="archive-card-meta">
         {% if a.date %}
-          <span class="archive-stat">📅 <strong>{{ a.date | fmt_date }}</strong></span>
+          <span class="archive-stat"><strong>{{ a.date | fmt_date }}</strong></span>
         {% endif %}
         {% if a.time %}
-          <span class="archive-stat">🕐 <strong>{{ a.time | fmt_time }}</strong></span>
+          <span class="archive-stat"><strong>{{ a.time | fmt_time }}</strong></span>
         {% endif %}
         {% if a.location %}
-          <span class="archive-stat">📍 <strong>{{ a.location }}</strong></span>
+          <span class="archive-stat"><strong>{{ a.location }}</strong></span>
         {% endif %}
         <span class="archive-stat">
           Potvrdených: <strong>{{ a.participants_count }}</strong>/{{ a.capacity or '?' }}

@@ -9,7 +9,7 @@
     <div style="margin-top:0.3rem;display:flex;align-items:center;gap:0.5rem">
       <span id="status-badge" class="badge badge-{{ contact.status | slug }}">{{ contact.status }}</span>
       {% if contact.course_ref %}
-        <span style="font-size:0.8rem;color:var(--text-muted)">📅 {{ contact.course_ref }}</span>
+        <span style="font-size:0.8rem;color:var(--text-muted)">{{ contact.course_ref }}</span>
       {% endif %}
     </div>
   </div>
@@ -107,7 +107,7 @@
           <select name="session_id" id="session-select" class="form-control">
             <option value="">— ručný zápis —</option>
             {% if contact.session_id %}
-              <option value="remove" style="color:#b52a2a">✕ Odobrať termín</option>
+              <option value="remove" style="color:var(--danger)">Odobrať termín</option>
             {% endif %}
             {% for s in sessions %}
               <option value="{{ s.id }}"
