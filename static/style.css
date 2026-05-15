@@ -1,9 +1,9 @@
 @import url('https://cdn.myshoptet.com/prj/dist/master/cms/templates/frontend_templates/shared/css/font-face/nunito.css');
 
 :root {
-  --primary:       #5A8B2E;   /* vk-grass */
-  --primary-dark:  #426820;   /* vk-grass-deep */
-  --primary-light: #7AAD50;
+  --primary:       #1B7A54;   /* vk-meadow */
+  --primary-dark:  #145C3E;   /* vk-meadow-deep */
+  --primary-light: #2A9468;   /* vk-meadow-mid */
   --accent:        #FFC500;   /* vk-sun — CTA yellow */
   --accent-hover:  #E0AC00;   /* vk-sun-deep */
   --white:         #ffffff;
@@ -190,7 +190,7 @@ body {
 .form-control:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(90,139,46,0.15);
+  box-shadow: 0 0 0 3px rgba(27,122,84,0.15);
 }
 textarea.form-control { min-height: 130px; resize: vertical; line-height: 1.55; }
 select.form-control {

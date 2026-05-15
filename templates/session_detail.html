@@ -31,7 +31,7 @@
 
 {# ── Kapacita ─────────────────────────────────────────────────────────── #}
 {% set pct = (contacts|length / sess.capacity * 100) if sess.capacity else 0 %}
-{% set cap_color = '#B02C18' if pct >= 100 else ('#C47A08' if pct >= 70 else '#5A8B2E') %}
+{% set cap_color = '#B02C18' if pct >= 100 else ('#C47A08' if pct >= 70 else '#1B7A54') %}
 <div class="card no-print" style="margin-bottom:1rem">
   <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
     <div>
