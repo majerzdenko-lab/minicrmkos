@@ -5,10 +5,11 @@ from functools import wraps
 
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import resend
-from models import db, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, WaitingList, STATUS_ORDER, SOURCES
+from models import db, AdminAuth, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, WaitingList, STATUS_ORDER, SOURCES
 
 app = Flask(__name__)
 
@@ -42,6 +43,18 @@ def login_required(f):
     return decorated
 
 
+def current_admin_hash():
+    """Password hash to check against — a DB override (set via password reset) if present, else the env var."""
+    row = AdminAuth.query.get(1)
+    if row:
+        return row.password_hash
+    return os.environ.get("ADMIN_PASSWORD_HASH", "")
+
+
+def reset_serializer():
+    return URLSafeTimedSerializer(app.config["SECRET_KEY"], salt="password-reset")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("logged_in"):
@@ -51,7 +64,7 @@ def login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
         admin_user = os.environ.get("ADMIN_USERNAME", "admin")
-        admin_hash = os.environ.get("ADMIN_PASSWORD_HASH", "")
+        admin_hash = current_admin_hash()
         if not admin_hash:
             error = "Heslo administrátora nie je nastavené. Nastavte ADMIN_PASSWORD_HASH."
         elif username == admin_user and check_password_hash(admin_hash, password):
@@ -68,6 +81,59 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+@limiter.limit("5 per hour")
+def forgot_password():
+    sent = False
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        admin_user = os.environ.get("ADMIN_USERNAME", "admin")
+        admin_email = os.environ.get("ADMIN_EMAIL", "")
+        if username == admin_user and admin_email:
+            token = reset_serializer().dumps(admin_user)
+            base_url = os.environ.get("APP_URL", "")
+            reset_link = f"{base_url}{url_for('reset_password', token=token)}" if base_url else url_for("reset_password", token=token)
+            send_mail(
+                admin_email,
+                "Obnovenie hesla — Veselý Kosec CRM",
+                f"Dobrý deň,\n\npožiadali ste o obnovenie hesla do CRM.\n\nNastavte si nové heslo tu (odkaz platí 1 hodinu):\n{reset_link}\n\nAk ste o obnovenie nepožiadali, tento email ignorujte."
+            )
+        # Same confirmation regardless of whether the username matched — avoid leaking which usernames exist.
+        sent = True
+    return render_template("forgot_password.html", sent=sent)
+
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+@limiter.limit("10 per hour")
+def reset_password(token):
+    admin_user = os.environ.get("ADMIN_USERNAME", "admin")
+    try:
+        username = reset_serializer().loads(token, max_age=3600)
+    except (BadSignature, SignatureExpired):
+        return render_template("reset_password.html", invalid=True)
+    if username != admin_user:
+        return render_template("reset_password.html", invalid=True)
+
+    error = None
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm", "")
+        if len(password) < 8:
+            error = "Heslo musí mať aspoň 8 znakov."
+        elif password != confirm:
+            error = "Heslá sa nezhodujú."
+        else:
+            row = AdminAuth.query.get(1)
+            if row:
+                row.password_hash = generate_password_hash(password)
+            else:
+                db.session.add(AdminAuth(id=1, password_hash=generate_password_hash(password)))
+            db.session.commit()
+            flash("Heslo bolo zmenené. Prihláste sa novým heslom.", "success")
+            return redirect(url_for("login"))
+    return render_template("reset_password.html", invalid=False, error=error)
 
 
 @app.template_filter("slug")

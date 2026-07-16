@@ -15,6 +15,13 @@ STATUS_ORDER = [
 SOURCES = ["mail", "telefón", "najzazitky.sk", "web", "iné"]
 
 
+class AdminAuth(db.Model):
+    __tablename__ = "admin_auth"
+    id = db.Column(db.Integer, primary_key=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class Contact(db.Model):
     __tablename__ = "contact"
     id = db.Column(db.Integer, primary_key=True)
