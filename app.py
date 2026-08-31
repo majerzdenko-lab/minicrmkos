@@ -217,6 +217,7 @@ def run_migrations():
         "ALTER TABLE contact ADD COLUMN height VARCHAR(20)",
         "ALTER TABLE contact ADD COLUMN session_id INTEGER REFERENCES course_session(id)",
         "ALTER TABLE contact ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE contact ADD COLUMN paid BOOLEAN DEFAULT FALSE",
     ]:
         try:
             with db.engine.connect() as conn:
@@ -398,6 +399,15 @@ def contact_regress(id):
             contact.status = STATUS_ORDER[idx - 1]
             contact.status_changed_at = datetime.utcnow()
             db.session.commit()
+    return redirect(request.referrer or url_for("index"))
+
+
+@app.route("/contact/<int:id>/toggle-paid", methods=["POST"])
+@login_required
+def contact_toggle_paid(id):
+    contact = Contact.query.get_or_404(id)
+    contact.paid = not contact.paid
+    db.session.commit()
     return redirect(request.referrer or url_for("index"))
 
 

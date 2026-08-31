@@ -76,6 +76,7 @@
             <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Email</th>
             <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Telefón</th>
             <th style="text-align:center;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Výška (cm)</th>
+            <th style="text-align:center;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Uhradené</th>
             <th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted) no-print">Stav</th>
           </tr>
         </thead>
@@ -91,6 +92,12 @@
               <td style="padding:0.6rem 0.75rem">{{ c.phone or '—' }}</td>
               <td style="padding:0.6rem 0.75rem;text-align:center;font-weight:{% if c.height %}600{% else %}400{% endif %}">
                 {{ c.height or '—' }}
+              </td>
+              <td style="padding:0.6rem 0.75rem;text-align:center">
+                <span style="display:none" class="print-name">{{ 'A' if c.paid else 'N' }}</span>
+                <form action="{{ url_for('contact_toggle_paid', id=c.id) }}" method="post" class="no-print" style="display:inline">
+                  <input type="checkbox" onchange="this.form.submit()" {% if c.paid %}checked{% endif %} title="Uhradené vopred">
+                </form>
               </td>
               <td style="padding:0.6rem 0.75rem" class="no-print">
                 <span class="badge badge-{{ c.status | slug }}">{{ c.status }}</span>

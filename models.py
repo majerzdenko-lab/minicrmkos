@@ -36,6 +36,7 @@ class Contact(db.Model):
     course_ref = db.Column(db.String(200))
     height = db.Column(db.String(20))
     reminder_sent = db.Column(db.Boolean, default=False)
+    paid = db.Column(db.Boolean, default=False)
     session_id = db.Column(db.Integer, db.ForeignKey("course_session.id"), nullable=True)
     session = db.relationship("CourseSession", backref="contacts", foreign_keys=[session_id])
 
