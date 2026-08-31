@@ -9,6 +9,7 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import resend
+from sqlalchemy import or_, func
 from models import db, AdminAuth, Contact, Course, ArchivedCourse, EmailTemplate, CourseSession, WaitingList, STATUS_ORDER, SOURCES
 
 app = Flask(__name__)
@@ -293,6 +294,24 @@ def course_label(obj):
     if obj.date:
         parts.append(obj.date.strftime("%-d. %-m. %Y"))
     return " · ".join(parts)
+
+
+def find_existing_contact(email, phone, session_id=None):
+    """Find a contact already matching this email/phone, to avoid duplicates
+    when someone submits a registration form more than once."""
+    email = (email or "").strip().lower()
+    phone = (phone or "").strip()
+    if not email and not phone:
+        return None
+    conditions = []
+    if email:
+        conditions.append(func.lower(Contact.email) == email)
+    if phone:
+        conditions.append(Contact.phone == phone)
+    query = Contact.query.filter(or_(*conditions))
+    if session_id is not None:
+        query = query.filter_by(session_id=session_id)
+    return query.order_by(Contact.id.desc()).first()
 
 
 # ── Index ──────────────────────────────────────────────────────────────────────
@@ -701,14 +720,20 @@ def kurzy_notify():
     email = request.form.get("email", "").strip()
     phone = request.form.get("phone", "").strip()
     if name and (email or phone):
-        contact = Contact(
-            name=name,
-            email=email,
-            phone=phone,
-            source="web",
-            note="Záujem o oznámenie termínov kurzu",
-        )
-        db.session.add(contact)
+        contact = find_existing_contact(email, phone)
+        if contact:
+            contact.name = name
+            contact.email = email or contact.email
+            contact.phone = phone or contact.phone
+        else:
+            contact = Contact(
+                name=name,
+                email=email,
+                phone=phone,
+                source="web",
+                note="Záujem o oznámenie termínov kurzu",
+            )
+            db.session.add(contact)
         db.session.commit()
         admin = os.environ.get("ADMIN_EMAIL", "")
         if admin:
@@ -744,16 +769,24 @@ def prihlasenie(session_id):
             error = "Zadajte aspoň telefón alebo email."
         else:
             name = f"{first} {last}"
-            contact = Contact(
-                name=name,
-                phone=phone,
-                email=email,
-                height=height,
-                source="web",
-                course_ref=course_label(sess),
-                session_id=sess.id,
-            )
-            db.session.add(contact)
+            contact = find_existing_contact(email, phone, session_id=sess.id)
+            if contact:
+                contact.name = name
+                contact.phone = phone or contact.phone
+                contact.email = email or contact.email
+                contact.height = height or contact.height
+                contact.course_ref = course_label(sess)
+            else:
+                contact = Contact(
+                    name=name,
+                    phone=phone,
+                    email=email,
+                    height=height,
+                    source="web",
+                    course_ref=course_label(sess),
+                    session_id=sess.id,
+                )
+                db.session.add(contact)
             db.session.commit()
             admin = os.environ.get("ADMIN_EMAIL", "")
             if admin:
