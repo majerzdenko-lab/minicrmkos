@@ -321,7 +321,11 @@ def find_existing_contact(email, phone, session_id=None):
 @login_required
 def index():
     status_filter = request.args.get("status", "")
-    query = Contact.query
+    session_filter = request.args.get("session_id", "")
+    base_query = Contact.query
+    if session_filter.isdigit():
+        base_query = base_query.filter_by(session_id=int(session_filter))
+    query = base_query
     if status_filter:
         query = query.filter_by(status=status_filter)
     contacts = query.order_by(Contact.created_at.desc()).all()
@@ -335,18 +339,21 @@ def index():
         c.id: (now - c.status_changed_at).days if c.status_changed_at else 0
         for c in contacts
     }
-    counts = {s: Contact.query.filter_by(status=s).count() for s in STATUS_ORDER}
-    total = sum(counts.values())
+    counts = {s: base_query.filter_by(status=s).count() for s in STATUS_ORDER}
+    total = base_query.count()
     sessions = CourseSession.query.filter_by(is_active=True).order_by(CourseSession.date).all()
+    all_sessions = CourseSession.query.order_by(CourseSession.date.desc()).all()
     return render_template(
         "index.html",
         contacts=contacts,
         stale_ids=stale_ids,
         days_map=days_map,
         status_filter=status_filter,
+        session_filter=session_filter,
         counts=counts,
         total=total,
         sessions=sessions,
+        all_sessions=all_sessions,
     )
 
 

@@ -43,17 +43,31 @@
 {# ── Filter tabs ──────────────────────────────────────────────────────── #}
 <div class="filter-wrap">
   <div class="filter-tabs">
-    <a href="{{ url_for('index') }}"
+    <a href="{{ url_for('index', session_id=session_filter or None) }}"
        class="filter-tab {% if not status_filter %}active{% endif %}">
       Všetky <span class="count">({{ total }})</span>
     </a>
     {% for s in status_order %}
-      <a href="{{ url_for('index', status=s) }}"
+      <a href="{{ url_for('index', status=s, session_id=session_filter or None) }}"
          class="filter-tab {% if status_filter == s %}active{% endif %}">
         {{ s }} <span class="count">({{ counts[s] }})</span>
       </a>
     {% endfor %}
   </div>
+  {% if all_sessions %}
+    <select onchange="location.href=this.value" class="form-control"
+            style="max-width:280px;font-size:0.85rem;min-height:34px;padding:0.2rem 0.5rem;margin-top:0.5rem">
+      <option value="{{ url_for('index', status=status_filter or None) }}" {% if not session_filter %}selected{% endif %}>
+        Všetky termíny
+      </option>
+      {% for s in all_sessions %}
+        <option value="{{ url_for('index', status=status_filter or None, session_id=s.id) }}"
+                {% if session_filter == s.id|string %}selected{% endif %}>
+          {{ s.name }}{% if s.date %} · {{ s.date | fmt_date }}{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  {% endif %}
 </div>
 
 {# ── Bulk action bar ──────────────────────────────────────────────────── #}
