@@ -472,6 +472,7 @@ def contact_detail(id):
         contact.name = name
         contact.phone = request.form.get("phone", "").strip()
         contact.email = request.form.get("email", "").strip()
+        contact.height = request.form.get("height", "").strip()
         contact.source = request.form.get("source", contact.source)
         new_status = request.form.get("status", contact.status)
         status_changed = new_status != contact.status
